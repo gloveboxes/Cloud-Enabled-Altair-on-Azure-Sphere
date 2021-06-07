@@ -3,7 +3,7 @@
 	url = https://github.com/gloveboxes/wolfMQTT.git
 [submodule "AltairHL_emulator/AzureSphereDevX"]
 	path = AltairHL_emulator/AzureSphereDevX
-	url = https://github.com/microsoft/Azure-Sphere-DevX.git
+	url = https://github.com/gloveboxes/AzureSphereDevX.git
 [submodule "AltairHL_emulator/Disks"]
 	path = AltairHL_emulator/Disks
 	url = https://github.com/gloveboxes/Cloud-Enabled-Altair-on-Azure-Sphere-Disks.git
