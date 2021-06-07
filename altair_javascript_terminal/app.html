@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet" href="node_modules/xterm/css/xterm.css" />
+  <style>
+    #term-box {
+      overflow: hidden;
+      width: auto;
+      height: auto;
+      /* <- fixed height */
+      font-size: 18px;
+      line-height: 20px;
+      /* <- initial line-height */
+    }
+
+    .inputMode {
+      /* border: 5px outset red; */
+      background-color: lightblue;
+      text-align: left;
+      color: black;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-weight: bold;
+    }
+
+    /* https://css-tricks.com/old-timey-terminal-styling/ */
+
+    body {
+      background-color: black;
+      background-image: radial-gradient(rgba(0, 150, 0, 0.75), black 120%);
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+      padding: 2rem;
+      color: white;
+      font: 1.3rem Courier New;
+      text-shadow: 0 0 5px #C8C8C8;
+    }
+
+    ::selection {
+      background: #0080FF;
+      text-shadow: none;
+    }
+
+    pre {
+      margin: 0;
+    }
+
+    /* .terminal {
+      background-color: black;
+      background-image: radial-gradient(rgba(0, 150, 0, 0.75), black 120%);
+
+      text-align: left;
+      color: white;
+      font: 1.3rem Inconsolata, monospace;
+      font-family:"Lucida Console", "Lucida Sans Typewriter", monaco, "Bitstream Vera Sans Mono", monospace;
+      font-size: large;
+      font-weight: normal;
+    } */
+  </style>
+  <title>ALTAIR 8800 Emulator</title>
+</head>
+
+<body>
+  <div id="inputmode"></div>
+  <div id="terminal"></div>
+  <script src="node_modules/xterm/lib/xterm.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript"></script>
+  <script src="Javascript/xterm.js"></script>
+  <script src="Javascript/app.js"></script>
+</body>
+
+</html>
