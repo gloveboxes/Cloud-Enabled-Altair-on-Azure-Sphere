@@ -2,6 +2,10 @@
 
 [Docs location](https://github.com/gloveboxes/Cloud-Enabled-Altair-on-Azure-Sphere/wiki)
 
+```bash
+git clone --recurse-submodules --depth 1 https://github.com/gloveboxes/Cloud-Enabled-Altair-on-Azure-Sphere.git
+```
+
 # Altair Web Terminal
 
 [Altair Web Terminal](https://altairterminal.z8.web.core.windows.net/)
