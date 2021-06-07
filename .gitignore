@@ -212,3 +212,4 @@ app/release
 
 # CMake intermediate files
 **/out/
+AltairHL_emulator/app_manifest.json
