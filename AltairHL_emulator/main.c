@@ -4,7 +4,7 @@
 // Hardware definition
 #include "hw/azure_sphere_learning_path.h"
 
-// Learning Path Libraries
+// DevX Libraries
 #include "dx_config.h"
 #include "dx_exit_codes.h"
 #include "dx_gpio.h"
@@ -35,7 +35,7 @@
 #include "sphere_panel.h"
 #include "memory.h"
 
-// #include "slog.h"
+#define ALTAIR_ON_AZURE_SPHERE_VERSION "3.0"
 
 #ifdef ALTAIR_FRONT_PANEL_CLICK
 #include "front_panel_click.h"
@@ -51,7 +51,6 @@
 
 #define Log_Debug(f_, ...) Log_Debug_Time((f_), ##__VA_ARGS__)
 
-#define ALTAIR_ON_AZURE_SPHERE_VERSION "2.0"
 #define NETWORK_INTERFACE "wlan0"
 #define DX_LOGGING_ENABLED FALSE
 
@@ -91,8 +90,7 @@ uint16_t bus_switches = 0x00;
 int altair_spi_fd = -1;
 int console_fd = -1;
 
-const uint8_t reverse_lut[16] = {0x0, 0x8, 0x4, 0xc, 0x2, 0xa, 0x6, 0xe,
-                                 0x1, 0x9, 0x5, 0xd, 0x3, 0xb, 0x7, 0xf};
+const uint8_t reverse_lut[16] = {0x0, 0x8, 0x4, 0xc, 0x2, 0xa, 0x6, 0xe, 0x1, 0x9, 0x5, 0xd, 0x3, 0xb, 0x7, 0xf};
 
 // basic app load helpers.
 static bool haveCtrlPending = false;
@@ -127,45 +125,32 @@ INTERCORE_ENVIRONMENT_T current_environment;
 
 INTERCORE_DISK_DATA_BLOCK_T intercore_disk_block;
 
-DX_INTERCORE_BINDING intercore_environment_ctx = {
-    .sockFd = -1,
-    .nonblocking_io = true,
-    .rtAppComponentId = CORE_ENVIRONMENT_COMPONENT_ID,
-    .interCoreCallback = intercore_environment_receive_msg_handler,
-    .intercore_recv_block = &intercore_recv_block,
-    .intercore_recv_block_length = sizeof(intercore_recv_block)};
+DX_INTERCORE_BINDING intercore_environment_ctx = {.sockFd = -1,
+                                                  .nonblocking_io = true,
+                                                  .rtAppComponentId = CORE_ENVIRONMENT_COMPONENT_ID,
+                                                  .interCoreCallback = intercore_environment_receive_msg_handler,
+                                                  .intercore_recv_block = &intercore_recv_block,
+                                                  .intercore_recv_block_length = sizeof(intercore_recv_block)};
 
-DX_INTERCORE_BINDING intercore_disk_cache_ctx = {
-    .sockFd = -1,
-    .nonblocking_io = true,
-    .rtAppComponentId = CORE_DISK_CACHE_COMPONENT_ID,
-    .interCoreCallback = intercore_disk_cache_receive_msg_handler,
-    .intercore_recv_block = &intercore_disk_block,
-    .intercore_recv_block_length = sizeof(intercore_disk_block)};
+DX_INTERCORE_BINDING intercore_disk_cache_ctx = {.sockFd = -1,
+                                                 .nonblocking_io = true,
+                                                 .rtAppComponentId = CORE_DISK_CACHE_COMPONENT_ID,
+                                                 .interCoreCallback = intercore_disk_cache_receive_msg_handler,
+                                                 .intercore_recv_block = &intercore_disk_block,
+                                                 .intercore_recv_block_length = sizeof(intercore_disk_block)};
 
 #ifdef ALTAIR_FRONT_PANEL_CLICK
 
 CLICK_4X4_BUTTON_MODE click_4x4_key_mode = CONTROL_MODE;
 
-matrix8x8_t panel8x8 = {.interfaceId = MT3620_ISU1_SPI,
-                        .chipSelectId = MT3620_SPI_CS_B,
-                        .busSpeed = 10000000,
-                        .handle = -1,
-                        .bitmap = {0}};
+matrix8x8_t panel8x8 = {.interfaceId = MT3620_ISU1_SPI, .chipSelectId = MT3620_SPI_CS_B, .busSpeed = 10000000, .handle = -1, .bitmap = {0}};
 
-key4x4_t key4x4 = {.interfaceId = MT3620_ISU1_SPI,
-                   .chipSelectId = MT3620_SPI_CS_A,
-                   .busSpeed = 10000000,
-                   .handle = -1,
-                   .bitmap = 0,
-                   .debouncePeriodMilliseconds = 500};
+key4x4_t key4x4 = {.interfaceId = MT3620_ISU1_SPI, .chipSelectId = MT3620_SPI_CS_A, .busSpeed = 10000000, .handle = -1, .bitmap = 0, .debouncePeriodMilliseconds = 500};
 
-DX_GPIO_BINDING buttonB = {.pin = BUTTON_B, .direction = DX_INPUT, .name = "buttonB"};
+DX_GPIO_BINDING buttonB = {.pin = BUTTON_B, .direction = DX_INPUT, .detect = DX_GPIO_DETECT_LOW, .name = "buttonB"};
 
 // turn off notifications
-DX_TIMER_BINDING turnOffNotificationsTimer = {.period = {0, 0},
-                                              .name = "turnOffNotificationsTimer",
-                                              .handler = turn_off_notifications_handler};
+DX_TIMER_BINDING turnOffNotificationsTimer = {.period = {0, 0}, .name = "turnOffNotificationsTimer", .handler = turn_off_notifications_handler};
 
 #endif //  ALTAIR_FRONT_PANEL_CLICK
 
@@ -175,119 +160,48 @@ DX_TIMER_BINDING turnOffNotificationsTimer = {.period = {0, 0},
 // GPIO_Value_High, .invertPin = false, .name = "memory CS" }; static DX_GPIO sdCS = { .pin = SD_CS,
 // .direction = DX_OUTPUT, .initialState = GPIO_Value_High, .invertPin = false, .name = "SD_CS" };
 
-DX_GPIO_BINDING switches_chip_select = {.pin = SWITCHES_CHIP_SELECT,
-                                        .direction = DX_OUTPUT,
-                                        .initialState = GPIO_Value_High,
-                                        .invertPin = false,
-                                        .name = "switches CS"};
+DX_GPIO_BINDING switches_chip_select = {.pin = SWITCHES_CHIP_SELECT, .direction = DX_OUTPUT, .initialState = GPIO_Value_High, .invertPin = false, .name = "switches CS"};
 
-DX_GPIO_BINDING switches_load = {.pin = SWITCHES_LOAD,
-                                 .direction = DX_OUTPUT,
-                                 .initialState = GPIO_Value_High,
-                                 .invertPin = false,
-                                 .name = "switchs Load"};
+DX_GPIO_BINDING switches_load = {.pin = SWITCHES_LOAD, .direction = DX_OUTPUT, .initialState = GPIO_Value_High, .invertPin = false, .name = "switchs Load"};
 
-DX_GPIO_BINDING led_store = {.pin = LED_STORE,
-                             .direction = DX_OUTPUT,
-                             .initialState = GPIO_Value_High,
-                             .invertPin = false,
-                             .name = "LED store"};
+DX_GPIO_BINDING led_store = {.pin = LED_STORE, .direction = DX_OUTPUT, .initialState = GPIO_Value_High, .invertPin = false, .name = "LED store"};
 
-static DX_GPIO_BINDING led_master_reset = {.pin = LED_MASTER_RESET,
-                                           .direction = DX_OUTPUT,
-                                           .initialState = GPIO_Value_High,
-                                           .invertPin = false,
-                                           .name = "LED master reset"};
+static DX_GPIO_BINDING led_master_reset = {.pin = LED_MASTER_RESET, .direction = DX_OUTPUT, .initialState = GPIO_Value_High, .invertPin = false, .name = "LED master reset"};
 
 static DX_GPIO_BINDING led_output_enable = {
-    .pin = LED_OUTPUT_ENABLE,
-    .direction = DX_OUTPUT,
-    .initialState = GPIO_Value_Low,
-    .invertPin = false,
-    .name = "LED output enable"}; // set OE initial state low
+    .pin = LED_OUTPUT_ENABLE, .direction = DX_OUTPUT, .initialState = GPIO_Value_Low, .invertPin = false, .name = "LED output enable"}; // set OE initial state low
 
 #endif // ALTAIR_FRONT_PANEL_KIT
 
-static DX_GPIO_BINDING buttonA = {.pin = BUTTON_A, .direction = DX_INPUT, .name = "buttonA"};
-static DX_GPIO_BINDING azure_iot_connected_led = {.pin = AZURE_CONNECTED_LED,
-                                                  .direction = DX_OUTPUT,
-                                                  .initialState = GPIO_Value_Low,
-                                                  .invertPin = true,
-                                                  .name = "azure_iot_connected_led"};
+static DX_GPIO_BINDING buttonA = {.pin = BUTTON_A, .direction = DX_INPUT, .detect = DX_GPIO_DETECT_LOW, .name = "buttonA"};
+static DX_GPIO_BINDING azure_iot_connected_led = {
+    .pin = AZURE_CONNECTED_LED, .direction = DX_OUTPUT, .initialState = GPIO_Value_Low, .invertPin = true, .name = "azure_iot_connected_led"};
 
 // Common Timers
-DX_TIMER_BINDING restartDeviceOneShotTimer = {
-    .period = {0, 0}, .name = "restartDeviceOneShotTimer", .handler = delay_restart_device_handler};
-
-static DX_TIMER_BINDING connectionStatusLedOffTimer = {
-    .period = {0, 0},
-    .name = "connectionStatusLedOffTimer",
-    .handler = connection_status_led_off_handler};
-
-static DX_TIMER_BINDING connectionStatusLedOnTimer = {.period = {0, 0},
-                                                      .name = "connectionStatusLedOnTimer",
-                                                      .handler = connection_status_led_on_handler};
-
-static DX_TIMER_BINDING measure_sensor_timer = {
-    .period = {5, 0}, .name = "measure_sensor_timer", .handler = measure_sensor_handler};
-
-static DX_TIMER_BINDING memory_diagnostics_timer = {
-    .period = {60, 0}, .name = "memory_diagnostics_timer", .handler = memory_diagnostics_handler};
-
-static DX_TIMER_BINDING mqtt_do_work_timer = {
-    .period = {0, 300000000}, .name = "mqtt_do_work_timer", .handler = mqtt_dowork_handler};
-
-static DX_TIMER_BINDING panel_refresh_timer = {
-    .period = {0, 20000000}, .name = "panel_refresh_timer", .handler = panel_refresh_handler};
+DX_TIMER_BINDING restartDeviceOneShotTimer = {.period = {0, 0}, .name = "restartDeviceOneShotTimer", .handler = delay_restart_device_handler};
+static DX_TIMER_BINDING connectionStatusLedOffTimer = {.period = {0, 0}, .name = "connectionStatusLedOffTimer", .handler = connection_status_led_off_handler};
+static DX_TIMER_BINDING connectionStatusLedOnTimer = {.period = {0, 0}, .name = "connectionStatusLedOnTimer", .handler = connection_status_led_on_handler};
+static DX_TIMER_BINDING measure_sensor_timer = {.period = {5, 0}, .name = "measure_sensor_timer", .handler = measure_sensor_handler};
+static DX_TIMER_BINDING memory_diagnostics_timer = {.period = {60, 0}, .name = "memory_diagnostics_timer", .handler = memory_diagnostics_handler};
+static DX_TIMER_BINDING mqtt_do_work_timer = {.period = {0, 300 * OneMS}, .name = "mqtt_do_work_timer", .handler = mqtt_dowork_handler};
+static DX_TIMER_BINDING panel_refresh_timer = {.period = {0, 20 * OneMS}, .name = "panel_refresh_timer", .handler = panel_refresh_handler};
 
 // Azure IoT Central Properties (Device Twins)
-DX_DEVICE_TWIN_BINDING dt_channelId = {.twinProperty = "DesiredChannelId",
-                                       .twinType = DX_TYPE_INT,
-                                       .handler = device_twin_set_channel_id_handler};
-
-DX_DEVICE_TWIN_BINDING dt_diskCacheHits = {.twinProperty = "DiskCacheHits",
-                                           .twinType = DX_TYPE_INT};
-
-DX_DEVICE_TWIN_BINDING dt_diskCacheMisses = {.twinProperty = "DiskCacheMisses",
-                                             .twinType = DX_TYPE_INT};
-
-DX_DEVICE_TWIN_BINDING dt_diskTotalErrors = {.twinProperty = "DiskTotalErrors",
-                                             .twinType = DX_TYPE_INT};
-
-DX_DEVICE_TWIN_BINDING dt_diskTotalWrites = {.twinProperty = "DiskTotalWrites",
-                                             .twinType = DX_TYPE_INT};
-
-static DX_DEVICE_TWIN_BINDING dt_desiredCpuState = {.twinProperty = "DesiredCpuState",
-                                                    .twinType = DX_TYPE_BOOL,
-                                                    .handler = device_twin_set_cpu_state_handler};
-
-static DX_DEVICE_TWIN_BINDING dt_desiredLedBrightness = {
-    .twinProperty = "DesiredLedBrightness",
-    .twinType = DX_TYPE_INT,
-    .handler = device_twin_set_led_brightness_handler};
-
-static DX_DEVICE_TWIN_BINDING dt_desiredLocalSerial = {
-    .twinProperty = "DesiredLocalSerial",
-    .twinType = DX_TYPE_BOOL,
-    .handler = device_twin_set_local_serial_handler};
-
-static DX_DEVICE_TWIN_BINDING dt_desiredTemperature = {
-    .twinProperty = "DesiredTemperature",
-    .twinType = DX_TYPE_INT,
-    .handler = device_twin_set_temperature_handler};
-
-static DX_DEVICE_TWIN_BINDING dt_reportedDeviceStartTime = {
-    .twinProperty = "ReportedDeviceStartTime", .twinType = DX_TYPE_STRING};
-
-static DX_DEVICE_TWIN_BINDING dt_reportedTemperature = {.twinProperty = "ReportedTemperature",
-                                                        .twinType = DX_TYPE_INT};
-
-static DX_DEVICE_TWIN_BINDING dt_softwareVersion = {.twinProperty = "SoftwareVersion",
-                                                    .twinType = DX_TYPE_STRING};
+DX_DEVICE_TWIN_BINDING dt_channelId = {.twinProperty = "DesiredChannelId", .twinType = DX_TYPE_INT, .handler = device_twin_set_channel_id_handler};
+DX_DEVICE_TWIN_BINDING dt_diskCacheHits = {.twinProperty = "DiskCacheHits", .twinType = DX_TYPE_INT};
+DX_DEVICE_TWIN_BINDING dt_diskCacheMisses = {.twinProperty = "DiskCacheMisses", .twinType = DX_TYPE_INT};
+DX_DEVICE_TWIN_BINDING dt_diskTotalErrors = {.twinProperty = "DiskTotalErrors", .twinType = DX_TYPE_INT};
+DX_DEVICE_TWIN_BINDING dt_diskTotalWrites = {.twinProperty = "DiskTotalWrites", .twinType = DX_TYPE_INT};
+static DX_DEVICE_TWIN_BINDING dt_desiredCpuState = {.twinProperty = "DesiredCpuState", .twinType = DX_TYPE_BOOL, .handler = device_twin_set_cpu_state_handler};
+static DX_DEVICE_TWIN_BINDING dt_desiredLedBrightness = {.twinProperty = "DesiredLedBrightness", .twinType = DX_TYPE_INT, .handler = device_twin_set_led_brightness_handler};
+static DX_DEVICE_TWIN_BINDING dt_desiredLocalSerial = {.twinProperty = "DesiredLocalSerial", .twinType = DX_TYPE_BOOL, .handler = device_twin_set_local_serial_handler};
+static DX_DEVICE_TWIN_BINDING dt_desiredTemperature = {.twinProperty = "DesiredTemperature", .twinType = DX_TYPE_INT, .handler = device_twin_set_temperature_handler};
+static DX_DEVICE_TWIN_BINDING dt_reportedDeviceStartTime = {.twinProperty = "ReportedDeviceStartTime", .twinType = DX_TYPE_STRING};
+static DX_DEVICE_TWIN_BINDING dt_reportedTemperature = {.twinProperty = "ReportedTemperature", .twinType = DX_TYPE_INT};
+static DX_DEVICE_TWIN_BINDING dt_softwareVersion = {.twinProperty = "SoftwareVersion", .twinType = DX_TYPE_STRING};
 
 // Azure IoT Central Commands (Direct Methods)
-static DX_DIRECT_METHOD_BINDING dm_restartDevice = {.methodName = "RestartDevice",
-                                                    .handler = RestartDeviceHandler};
+static DX_DIRECT_METHOD_BINDING dm_restartDevice = {.methodName = "RestartDevice", .handler = RestartDeviceHandler};
 
 // Initialize Sets
 static DX_GPIO_BINDING *gpioSet[] = {&azure_iot_connected_led,
@@ -321,11 +235,9 @@ static DX_TIMER_BINDING *timerSet[] = {&connectionStatusLedOnTimer,
 #endif // ALTAIR_FRONT_PANEL_CLICK
 };
 
-static DX_DEVICE_TWIN_BINDING *deviceTwinBindingSet[] = {
-    &dt_reportedDeviceStartTime, &dt_channelId,          &dt_desiredCpuState,
-    &dt_desiredLedBrightness,    &dt_desiredLocalSerial, &dt_desiredTemperature,
-    &dt_reportedTemperature,     &dt_diskCacheHits,      &dt_diskCacheMisses,
-    &dt_diskTotalWrites,         &dt_diskTotalErrors};
+static DX_DEVICE_TWIN_BINDING *deviceTwinBindingSet[] = {&dt_reportedDeviceStartTime, &dt_channelId,          &dt_desiredCpuState,     &dt_desiredLedBrightness,
+                                                         &dt_desiredLocalSerial,      &dt_desiredTemperature, &dt_reportedTemperature, &dt_diskCacheHits,
+                                                         &dt_diskCacheMisses,         &dt_diskTotalWrites,    &dt_diskTotalErrors};
 
 DX_DIRECT_METHOD_BINDING *directMethodBindingSet[] = {&dm_restartDevice};
 
@@ -334,20 +246,22 @@ DX_DIRECT_METHOD_BINDING *directMethodBindingSet[] = {&dm_restartDevice};
 static void mqtt_connected_cb(void)
 {
     static bool connection_initialised = false;
-    static const char *connected_message =
-        "\r\nCONNECTED TO AZURE SPHERE ALTAIR 8800 EMULATOR.\r\n\r\n";
+    static const char *connected_message = "\r\nCONNECTED TO AZURE SPHERE ALTAIR 8800 EMULATOR VERSION: %s, DevX VERSION: %s.\r\n\r\n";
     static const char *reconnected_message =
-        "\r\nRECONNECTED TO AZURE SPHERE ALTAIR 8800 EMULATOR.\r\n\r\n";
+        "\r\nRECONNECTED TO AZURE SPHERE ALTAIR 8800 EMULATOR VERSION: %s, DevX VERSION: "
+        "%s.\r\n\r\n";
 
     if (!connection_initialised) {
         connection_initialised = true;
-        queue_mqtt_message(connected_message, strlen(connected_message));
+        int len = snprintf(msgBuffer, sizeof(msgBuffer), connected_message, ALTAIR_ON_AZURE_SPHERE_VERSION, AZURE_SPHERE_DEVX_VERSION);
+        queue_mqtt_message(msgBuffer, len);
         cpu_operating_mode = CPU_RUNNING;
         // if (dt_desiredCpuState.twinState) {
         //	cpu_operating_mode = CPU_RUNNING;
         //}
     } else {
-        queue_mqtt_message(reconnected_message, strlen(reconnected_message));
+        int len = snprintf(msgBuffer, sizeof(msgBuffer), reconnected_message, ALTAIR_ON_AZURE_SPHERE_VERSION, AZURE_SPHERE_DEVX_VERSION);
+        queue_mqtt_message(msgBuffer, len);
     }
 }
 
@@ -385,7 +299,6 @@ static bool load_application(const char *fileName)
         basicAppLength = (int)(length + 9); // add extra <CR><LF> * 2
         haveAppLoad = true;
     } else {
-        // publish_message("\r\nFILE NOT FOUND\r\n\r\n", 20);
         return false;
     }
     return true;
@@ -419,19 +332,15 @@ static void intercore_disk_cache_receive_msg_handler(void *data_block, ssize_t m
 static void device_twin_set_temperature_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
 {
     // validate data is sensible range before applying
-    if (deviceTwinBinding->twinType == DX_TYPE_INT && *(int *)deviceTwinBinding->twinState >= -20 &&
-        *(int *)deviceTwinBinding->twinState <= 80) {
+    if (deviceTwinBinding->twinType == DX_TYPE_INT && *(int *)deviceTwinBinding->twinState >= -20 && *(int *)deviceTwinBinding->twinState <= 80) {
         // Send the desired temperate to the real-time core enviromon app
         intercore_send_block.ic_msg_type = ALTAIR_IC_THERMOSTAT;
         intercore_send_block.environment.desired_temperature = *(int *)deviceTwinBinding->twinState;
-        dx_intercorePublish(&intercore_environment_ctx, &intercore_send_block,
-                                sizeof(INTERCORE_ENVIRONMENT_T));
+        dx_intercorePublish(&intercore_environment_ctx, &intercore_send_block, sizeof(INTERCORE_ENVIRONMENT_T));
         // acknowledge the device twin
-        dx_deviceTwinAckDesiredState(deviceTwinBinding, deviceTwinBinding->twinState,
-                                     DX_DEVICE_TWIN_COMPLETED);
+        dx_deviceTwinAckDesiredState(deviceTwinBinding, deviceTwinBinding->twinState, DX_DEVICE_TWIN_COMPLETED);
     } else {
-        dx_deviceTwinAckDesiredState(deviceTwinBinding, deviceTwinBinding->twinState,
-                                     DX_DEVICE_TWIN_ERROR);
+        dx_deviceTwinAckDesiredState(deviceTwinBinding, deviceTwinBinding->twinState, DX_DEVICE_TWIN_ERROR);
     }
 }
 
@@ -449,8 +358,7 @@ static void measure_sensor_handler(EventLoopTimer *eventLoopTimer)
 
     // Send request to RT Core for current environment data
     intercore_send_block.ic_msg_type = ALTAIR_IC_ENVIRONMENT;
-    dx_intercorePublish(&intercore_environment_ctx, &intercore_send_block,
-                            sizeof(INTERCORE_ENVIRONMENT_T));
+    dx_intercorePublish(&intercore_environment_ctx, &intercore_send_block, sizeof(INTERCORE_ENVIRONMENT_T));
 
     if (++device_twin_update_rate > 5) { // send every 6 updates = every 30 seconds
         device_twin_update_rate = 0;
@@ -469,8 +377,7 @@ static void measure_sensor_handler(EventLoopTimer *eventLoopTimer)
 /// <param name="topic_name_size"></param>
 /// <param name="message"></param>
 /// <param name="message_size"></param>
-static void handle_inbound_message(const char *topic_name, size_t topic_name_size,
-                                   const char *message, size_t message_size)
+static void handle_inbound_message(const char *topic_name, size_t topic_name_size, const char *message, size_t message_size)
 {
     char command[30];
     char *data;
@@ -486,21 +393,18 @@ static void handle_inbound_message(const char *topic_name, size_t topic_name_siz
         // upper case incoming message
         memset(command, 0, sizeof(command));
 
-        if (application_message_size > 0 &&
-            data[application_message_size - 1] == '\r') { // is last char carriage return ?
+        if (application_message_size > 0 && data[application_message_size - 1] == '\r') { // is last char carriage return ?
             send_cr = true;
             application_message_size--;
         }
 
-        for (int i = 0; i < sizeof(command) - 1 && i < application_message_size;
-             i++) { // -1 to allow for trailing null
+        for (int i = 0; i < sizeof(command) - 1 && i < application_message_size; i++) { // -1 to allow for trailing null
             command[i] = (char)toupper(data[i]);
         }
 
         // if command is load then try looking for in baked in samples otherwise pass on to Altair
         // emulator
-        if (strncmp(command, "LOAD ", 5) == 0 && application_message_size > 5 &&
-            (command[application_message_size - 1] == '"')) {
+        if (strncmp(command, "LOAD ", 5) == 0 && application_message_size > 5 && (command[application_message_size - 1] == '"')) {
             command[application_message_size - 1] = 0x00; // replace the '"' with \0
             if (load_application(&command[6])) {
                 return;
@@ -509,8 +413,7 @@ static void handle_inbound_message(const char *topic_name, size_t topic_name_siz
 
         switch (cpu_operating_mode) {
         case CPU_RUNNING:
-            if (application_message_size >
-                0) { // for example just cr was send so don't try send chars to CPU
+            if (application_message_size > 0) { // for example just cr was send so don't try send chars to CPU
                 input_data = data;
 
                 altairInputBufReadIndex = 0;
@@ -618,13 +521,10 @@ static void connection_status_led_on_handler(EventLoopTimer *eventLoopTimer)
         if (firstConnect && dx_isAzureConnected()) {
 
             // Update SoftwareVersion Device Twin
-            snprintf(msgBuffer, sizeof(msgBuffer), "Altair on Sphere version: %s, DevX version: %s",
-                     ALTAIR_ON_AZURE_SPHERE_VERSION, AZURE_SPHERE_DEVX_VERSION);
+            snprintf(msgBuffer, sizeof(msgBuffer), "Altair on Sphere version: %s, DevX version: %s", ALTAIR_ON_AZURE_SPHERE_VERSION, AZURE_SPHERE_DEVX_VERSION);
             dx_deviceTwinReportState(&dt_softwareVersion, msgBuffer);
 
-            dx_deviceTwinReportState(
-                &dt_reportedDeviceStartTime,
-                dx_getCurrentUtc(msgBuffer, sizeof(msgBuffer))); // DX_TYPE_STRING
+            dx_deviceTwinReportState(&dt_reportedDeviceStartTime, dx_getCurrentUtc(msgBuffer, sizeof(msgBuffer))); // DX_TYPE_STRING
             firstConnect = false;
         }
 
@@ -835,8 +735,7 @@ static void update_panel_leds(uint8_t status, uint8_t data, uint16_t bus)
 {
     status = reverse_lut[(status & 0xf0) >> 4] | reverse_lut[status & 0xf] << 4;
     data = reverse_lut[(data & 0xf0) >> 4] | reverse_lut[data & 0xf] << 4;
-    bus = reverse_lut[(bus & 0xf000) >> 12] << 8 | reverse_lut[(bus & 0x0f00) >> 8] << 12 |
-          reverse_lut[(bus & 0xf0) >> 4] | reverse_lut[bus & 0xf] << 4;
+    bus = reverse_lut[(bus & 0xf000) >> 12] << 8 | reverse_lut[(bus & 0x0f00) >> 8] << 12 | reverse_lut[(bus & 0xf0) >> 4] | reverse_lut[bus & 0xf] << 4;
 
     update_panel_status_leds(status, data, bus);
 }
@@ -930,8 +829,7 @@ static void *altair_thread(void *arg)
     disk_drive.disk2.sector = 0;
     disk_drive.disk2.track = 0;
 
-    i8080_reset(&cpu, (port_in)altair_read_terminal, (port_out)altair_write_terminal, sense,
-                &disk_controller, (azure_sphere_port_in)sphere_port_in,
+    i8080_reset(&cpu, (port_in)altair_read_terminal, (port_out)altair_write_terminal, sense, &disk_controller, (azure_sphere_port_in)sphere_port_in,
                 (azure_sphere_port_out)sphere_port_out);
     load8kRom(); // load 8k rom basic into memory at address 0x0000.
 
