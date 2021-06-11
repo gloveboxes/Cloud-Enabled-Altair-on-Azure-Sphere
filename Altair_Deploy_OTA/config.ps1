@@ -2,7 +2,7 @@
 $global:tenant_id = "<REPLACE_WITH_YOUR_TENANT_ID>"
 
 # AltairAvnetClick
-$global:device_group = "<REPLACE_WITH_YTOUR_DEVICE_GROUP_ID>"
+$global:device_group = "<REPLACE_WITH_YOUR_DEVICE_GROUP_ID>"
 
 # Images
 
