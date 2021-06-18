@@ -49,7 +49,7 @@
 #include "front_panel_none.h"
 #endif // ALTAIR_FRONT_PANEL_NONE
 
-#define Log_Debug(f_, ...) Log_Debug_Time((f_), ##__VA_ARGS__)
+#define Log_Debug(f_, ...) dx_Log_Debug((f_), ##__VA_ARGS__)
 
 #define NETWORK_INTERFACE "wlan0"
 #define DX_LOGGING_ENABLED FALSE
@@ -862,7 +862,7 @@ static void *altair_thread(void *arg)
 /// <returns>0 on success, or -1 on failure</returns>
 static void InitPeripheralAndHandlers(void)
 {
-    Log_Debug_Time_Init(Log_Debug_Time_buffer, sizeof(Log_Debug_Time_buffer));
+    dx_Log_Debug_Init(Log_Debug_Time_buffer, sizeof(Log_Debug_Time_buffer));
     curl_global_init(CURL_GLOBAL_DEFAULT);
     dx_gpioSetOpen(gpioSet, NELEMS(gpioSet));
     init_altair_hardware();
