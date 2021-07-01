@@ -1,0 +1,5 @@
+{
+    "staticWebApps.appSubpath": "/Altair_Web",
+    "staticWebApps.apiSubpath": "/Altair_Web/api",
+    "staticWebApps.outputSubpath": ""
+}
