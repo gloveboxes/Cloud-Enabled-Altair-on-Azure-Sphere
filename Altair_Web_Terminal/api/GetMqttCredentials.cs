@@ -13,10 +13,10 @@ namespace Glovebox.Function
         {
             return new OkObjectResult(new
             {
-                userName = Environment.GetEnvironmentVariable("mqtt_username"),
-                password = Environment.GetEnvironmentVariable("mqtt_password"),
-                broker = Environment.GetEnvironmentVariable("mqtt_broker"),
-                brokerPort = Environment.GetEnvironmentVariable("mqtt_broker_port")
+                userName = Environment.GetEnvironmentVariable("MQTT_USERNAME"),
+                password = Environment.GetEnvironmentVariable("MQTT_PASSWORD"),
+                broker = Environment.GetEnvironmentVariable("MQTT_BROKER"),
+                brokerPort = Environment.GetEnvironmentVariable("MQTT_BROKER_PORT")
             });
         }
     }
