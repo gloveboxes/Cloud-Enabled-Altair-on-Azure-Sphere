@@ -1,0 +1,13 @@
+{
+    "cSpell.words": [
+        "canocial"
+    ],
+    "staticWebApps.appSubpath": "Altair_Web_Terminal",
+    "staticWebApps.apiSubpath": "api",
+    "staticWebApps.outputSubpath": "",
+    "azureFunctions.deploySubpath": "api/bin/Release/netcoreapp3.1/publish",
+    "azureFunctions.projectLanguage": "C#",
+    "azureFunctions.projectRuntime": "~3",
+    "debug.internalConsoleOptions": "neverOpen",
+    "azureFunctions.preDeployTask": "publish"
+}
