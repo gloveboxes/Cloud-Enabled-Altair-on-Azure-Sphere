@@ -213,3 +213,5 @@ app/release
 # CMake intermediate files
 **/out/
 AltairHL_emulator/app_manifest.json
+Altair_Web/local.settings.json
+Altair_Web/api/local.settings.properties.json
