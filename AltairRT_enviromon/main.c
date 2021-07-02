@@ -1,7 +1,10 @@
 #include "intercore.h"
 #include "intercore_contract.h"
 
+#if defined(OEM_AVNET)
 #include "IMU_lib/imu_temp_pressure.h"
+#endif 
+
 #include "hw/azure_sphere_learning_path.h"
 #include "utils.h"
 
@@ -15,6 +18,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 enum LEDS { RED, GREEN, BLUE, UNKNOWN };
 static enum LEDS current_led = RED;
@@ -178,7 +182,6 @@ static void refresh_data(void)
 #else
 void refresh_data(void)
 {
-    ULONG actual_flags;
     int rand_number;
 
     ic_outbound_data.ic_msg_type = ALTAIR_IC_ENVIRONMENT;
