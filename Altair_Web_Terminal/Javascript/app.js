@@ -35,10 +35,6 @@
     return Math.floor(Math.random() * Math.floor(max));
   }
 
-  function helloWorld(){
-    alert('Hello world');
-  }
-
 
   const setChannelId = async (msg) => {
     const sleep = (delay) =>
@@ -50,7 +46,7 @@
     }
 
     if (words.length == 2) {
-      const url = `/api/control?channelid=${channelId}&deviceid=${words[1]}`;
+      const url = `/api/control?channelid=${channelId}&displayname=${words[1]}`;
       term.write("\r\n\r\nCONNECTING...");
       const response = await fetch(url);
       term.write("\r\n");
