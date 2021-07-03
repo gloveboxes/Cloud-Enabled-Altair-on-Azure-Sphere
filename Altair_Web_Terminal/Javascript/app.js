@@ -142,6 +142,7 @@
   function onConnect() {
     console.log("onConnect");
     client.subscribe(sub_topic);
+    document.getElementById("connectState").innerHTML = "MQTT Broker: Connected";
     // sendControl('C');
   }
 
@@ -149,6 +150,7 @@
   function onConnectionLost(responseObject) {
     if (responseObject.errorCode !== 0) {
       console.log("onConnectionLost:" + responseObject.errorMessage);
+      document.getElementById("connectState").innerHTML = "MQTT Broker: Not connected";
     }
   }
 
