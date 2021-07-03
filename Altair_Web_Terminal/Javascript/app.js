@@ -104,7 +104,7 @@
       mqttCredentials.broker,
       parseInt(mqttCredentials.brokerPort, 10) || 8083,
       "",
-      client_id="altair" + new Date().getTime()
+      "altair" + new Date().getTime()
     );
 
     // set callback handlers
