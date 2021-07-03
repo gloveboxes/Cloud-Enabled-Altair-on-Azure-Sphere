@@ -35,6 +35,10 @@
     return Math.floor(Math.random() * Math.floor(max));
   }
 
+  function helloWorld(){
+    alert("hello world");
+  }
+
 
   const setChannelId = async (msg) => {
     const sleep = (delay) =>
