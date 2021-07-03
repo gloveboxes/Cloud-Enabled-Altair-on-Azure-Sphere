@@ -119,7 +119,6 @@
     client.connect({
       keepAliveInterval: 30,
       mqttVersion: 4,
-      reconnect: true,
       cleanSession: true,
       useSSL: true,
       onSuccess: onConnect,
