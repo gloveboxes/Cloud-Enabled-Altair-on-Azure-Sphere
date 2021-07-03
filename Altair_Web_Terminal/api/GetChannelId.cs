@@ -8,6 +8,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 
 // https://docs.microsoft.com/en-us/rest/api/iotcentral/devices/getproperties
@@ -34,14 +35,20 @@ namespace Glovebox.Function
             ILogger log)
         {
             string response = string.Empty;
-            string deviceId = req.Query["deviceid"];
+            string displayName = req.Query["displayname"];
+            string deviceId = string.Empty;
 
-            if (string.IsNullOrEmpty(deviceId))
+            if (string.IsNullOrEmpty(displayName))
             {
                 return new BadRequestObjectResult("failed, request missing device id");
             }
 
-            deviceId = deviceId.ToLower();
+            deviceId = await GetDeviceIdAsync(displayName);
+
+            if (string.IsNullOrEmpty(deviceId))
+            {
+                return new BadRequestObjectResult("failed, display name not found");
+            }
 
             using (var client = new HttpClient())
             {
@@ -62,6 +69,43 @@ namespace Glovebox.Function
             }
 
             return new OkObjectResult(response);
+        }
+
+        static async Task<string> GetDeviceIdAsync(string key)
+        {
+            string device_id = string.Empty;
+            string response = string.Empty;
+
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(iotCentralUrl);
+                client.DefaultRequestHeaders.Add("Authorization", authorization);
+
+                var api = $"api/devices?api-version=1.0";
+
+                try
+                {
+                    response = await client.GetStringAsync(api);
+
+                    JObject jsondata = (JObject)JsonConvert.DeserializeObject(response);
+                    var values = jsondata.GetValue("value");
+
+                    foreach (var item in values)
+                    {
+                        var dn = item["displayName"].ToString();
+                        if (dn.Equals(key, StringComparison.OrdinalIgnoreCase))
+                        {
+                            device_id = item["id"].ToString();
+                            break;
+                        }
+                    }
+                }
+                catch
+                {
+                    device_id = string.Empty;
+                }
+            }
+            return device_id;
         }
 
         static async Task<string> UpdateIotCentral(string response, HttpClient client, Uri requestUri, string deviceId)
@@ -96,7 +140,7 @@ namespace Glovebox.Function
                 }
             }
 
-            return jsonData;
+            return iotcChannelId.ToString();
         }
     }
 }

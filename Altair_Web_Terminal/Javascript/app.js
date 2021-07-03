@@ -1,3 +1,5 @@
+// https://www.eclipse.org/paho/files/jsdoc/index.html
+
 (async function () {
   "use strict";
   var mqtt_client_id = "";
@@ -112,6 +114,7 @@
     client.onMessageArrived = onMessageArrived;
 
     // connect the client
+    // https://www.eclipse.org/paho/files/jsdoc/index.html
     client.connect({
       keepAliveInterval: 30,
       mqttVersion: 4,
