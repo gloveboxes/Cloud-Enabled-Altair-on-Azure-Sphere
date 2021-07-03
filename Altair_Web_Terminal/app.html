@@ -45,28 +45,23 @@
     pre {
       margin: 0;
     }
-
   </style>
   <title>ALTAIR 8800 Emulator</title>
 </head>
 
-<body>
-  <script src="Javascript/app.js"></script>
-
-  <div>
-  Device display name
-  <input type="text" id="displayname">
-  <input type="button" value="Connect" onclick="helloWorld()">
-  </div>
-  <br/>
+<body>  
   <div id="inputmode"></div>
   <div id="terminal"></div>
   <script src="https://unpkg.com/xterm@4.4.0/lib/xterm.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript"></script>
   <script src="Javascript/xterm.js"></script>
-  
-
-  
+  <script src="Javascript/app.js"></script>
+  <br />
+  <div>
+    Device display name
+    <input type="text" id="displayname">
+    <input type="button" value="Connect" onclick="helloWorld()">
+  </div>
 </body>
 
 </html>
