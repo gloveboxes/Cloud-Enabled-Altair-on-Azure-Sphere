@@ -112,6 +112,9 @@
 
     // connect the client
     client.connect({
+      timeout: 3,
+      keepAliveInterval: 60,
+      cleanSession: true,
       useSSL: true,
       onSuccess: onConnect,
       userName: mqttCredentials.userName,

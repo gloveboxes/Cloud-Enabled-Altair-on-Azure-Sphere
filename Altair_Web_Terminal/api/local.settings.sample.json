@@ -3,9 +3,9 @@
     "Values": {
         "IOT_CENTRAL_API_TOKEN": "",
         "IOT_CENTRAL_URL": "",
-        "MQTT_BROKER": "",
-        "MQTT_BROKER_PORT": "",
-        "MQTT_PASSWORD": "",
-        "MQTT_USERNAME": ""
+        "MQTT_BROKER": "test.mosquitto.org",
+        "MQTT_BROKER_PORT": "8091",
+        "MQTT_PASSWORD": "readwrite",
+        "MQTT_USERNAME": "rw"
     }
 }
