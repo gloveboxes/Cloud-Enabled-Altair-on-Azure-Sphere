@@ -113,8 +113,7 @@
 
     // connect the client
     client.connect({
-      timeout: 60,
-      keepAliveInterval: 120,
+      keepAliveInterval: 30,
       cleanSession: true,
       useSSL: true,
       onSuccess: onConnect,
