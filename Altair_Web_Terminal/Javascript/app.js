@@ -62,7 +62,7 @@
     const words = msg.trim().split(" ");
 
     if (words.length == 2) {
-      const url = `api/getchannelid?deviceid=${words[1]}`;
+      const url = `api/getchannelid?displayname=${words[1]}`;
       term.write("\r\n\r\nCONNECTING...");
       const response = await fetch(url);
       term.write("\r\n");

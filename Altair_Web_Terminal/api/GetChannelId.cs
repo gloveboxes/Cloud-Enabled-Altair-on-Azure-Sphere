@@ -22,6 +22,11 @@ namespace Glovebox.Function
         public string DeviceId { get; set; }
     }
 
+    public class ChannelIdResponse
+    {
+        public int DesiredChannelId { get; set; }
+    }
+
     public static class GetChannelId
     {
         private static string authorization = Environment.GetEnvironmentVariable("IOT_CENTRAL_API_TOKEN");
@@ -111,6 +116,8 @@ namespace Glovebox.Function
         static async Task<string> UpdateIotCentral(string response, HttpClient client, Uri requestUri, string deviceId)
         {
             IoTCentralPatch iotCentralPatch = new IoTCentralPatch();
+            ChannelIdResponse channelIdResponse = new ChannelIdResponse();
+
             Random _randomNumber = new Random();
             bool patchRequired = false;
 
@@ -127,6 +134,9 @@ namespace Glovebox.Function
                 iotCentralPatch.DesiredChannelId = Int32.Parse(iotcChannelId.DesiredChannelId);
             }
 
+            channelIdResponse.DesiredChannelId = iotCentralPatch.DesiredChannelId;
+            string responseData = JsonConvert.SerializeObject(channelIdResponse, Formatting.None);
+
             iotCentralPatch.DeviceId = deviceId;
             string jsonData = JsonConvert.SerializeObject(iotCentralPatch, Formatting.None);
 
@@ -137,10 +147,11 @@ namespace Glovebox.Function
                 if (!result.IsSuccessStatusCode)
                 {
                     jsonData = "{}";
+                    responseData = "{}";
                 }
             }
 
-            return iotcChannelId.ToString();
+            return responseData;
         }
     }
 }
