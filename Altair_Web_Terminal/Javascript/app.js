@@ -146,18 +146,19 @@
     // sendControl('C');
   }
 
-  // called when the client loses its connection
-  function onConnectionLost(responseObject) {
-    if (responseObject.errorCode !== 0) {
-      console.log("onConnectionLost:" + responseObject.errorMessage);
-      document.getElementById("connectState").innerHTML = "MQTT Broker: Not connected";
-    }
-  }
+  // // called when the client loses its connection
+  // function onConnectionLost(responseObject) {
+  //   if (responseObject.errorCode !== 0) {
+  //     console.log("onConnectionLost:" + responseObject.errorMessage);
+  //     document.getElementById("connectState").innerHTML = "MQTT Broker: Not connected";
+  //   }
+  // }
 
   // called when the client loses its connection
   function onConnectionLost(responseObject) {
     if (responseObject.errorCode !== 0) {
       console.log("onConnectionLost:" + responseObject.errorMessage);
+      document.getElementById("connectState").innerHTML = "MQTT Broker: Not connected";
       alert("Connection lost to the MQTT broker. Refresh page to reconnect");
     }
   }
