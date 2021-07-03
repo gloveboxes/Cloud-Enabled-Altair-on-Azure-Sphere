@@ -39,28 +39,27 @@
     alert("hello world");
   }
 
+  // const setChannelId = async (msg) => {
+  //   const sleep = (delay) =>
+  //     new Promise((resolve) => setTimeout(resolve, delay));
+  //   const words = msg.trim().split(" ");
 
-  const setChannelId = async (msg) => {
-    const sleep = (delay) =>
-      new Promise((resolve) => setTimeout(resolve, delay));
-    const words = msg.trim().split(" ");
+  //   while (!client.isConnected()) {
+  //     await sleep(1000);
+  //   }
 
-    while (!client.isConnected()) {
-      await sleep(1000);
-    }
+  //   if (words.length == 2) {
+  //     const url = `/api/control?channelid=${channelId}&displayname=${words[1]}`;
+  //     term.write("\r\n\r\nCONNECTING...");
+  //     const response = await fetch(url);
+  //     term.write("\r\n");
 
-    if (words.length == 2) {
-      const url = `/api/control?channelid=${channelId}&displayname=${words[1]}`;
-      term.write("\r\n\r\nCONNECTING...");
-      const response = await fetch(url);
-      term.write("\r\n");
-
-      channelSet = true;
-    } else {
-      alert("Expected HELLO followed by Azure Sphere Device ID");
-      term.write("\r\n");
-    }
-  };
+  //     channelSet = true;
+  //   } else {
+  //     alert("Expected HELLO followed by Azure Sphere Device ID");
+  //     term.write("\r\n");
+  //   }
+  // };
 
   const getChannelId = async (msg) => {
     const words = msg.trim().split(" ");
