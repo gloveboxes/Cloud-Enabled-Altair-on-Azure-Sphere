@@ -103,7 +103,7 @@
     client = new Paho.MQTT.Client(
       mqttCredentials.broker,
       parseInt(mqttCredentials.brokerPort, 10) || 8083,
-      transport="websockets",
+      "",
       client_id="altair" + new Date().getTime()
     );
 
