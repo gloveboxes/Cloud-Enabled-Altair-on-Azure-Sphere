@@ -219,7 +219,7 @@
     const getChannelId = async (displayName) => {
 
       const url = `api/getchannelid?displayname=${displayName}`;
-      term.write("\r\n\r\nCONNECTING...");
+      document.getElementById("connectState").innerHTML = "MQTT Broker: Connecting...";
       const response = await fetch(url);
       term.write("\r\n");
 
@@ -307,7 +307,6 @@
       client.subscribe(sub_topic);
       document.getElementById("connectState").innerHTML = "MQTT Broker: Connected";
       mqtt_broker_connected = true;
-      term.write("\r\nCONNECTED...");
     }
 
     // called when the client loses its connection
