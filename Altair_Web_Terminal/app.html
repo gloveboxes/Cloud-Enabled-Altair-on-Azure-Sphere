@@ -217,11 +217,10 @@
     }
 
     const getChannelId = async (displayName) => {
-
       const url = `api/getchannelid?displayname=${displayName}`;
       document.getElementById("connectState").innerHTML = "MQTT Broker: Connecting...";
       const response = await fetch(url);
-      term.write("\r\n");
+      // term.write("\r\n");
 
       if (response.ok) { // if HTTP-status is 200-299
         const json = await response.json();
@@ -264,7 +263,6 @@
     }
 
     async function mqttInit() {
-      // generateTopics();
       const res = await fetch("/api/mqtt-settings");
       const mqttCredentials = await res.json();
 
@@ -325,9 +323,6 @@
       term.write(message.payloadString);
     }
 
-    function sleep(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
   </script>
   <title>ALTAIR 8800 Emulator</title>
 </head>
