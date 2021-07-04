@@ -66,6 +66,8 @@
 
     function initTerminal() {
 
+      document.getElementById('displayName').value = localStorage['display_name'] || "";
+
       term = new Terminal({
         cursorBlink: "block",
         fontFamily: 'Courier New',
@@ -219,6 +221,7 @@
       if (display_name == '') {
         alert('ERROR: Missing the IoT Central device display name')
       } else {
+        localStorage['display_name'] = display_name;
         if (mqtt_broker_connected) {
           client.disconnect();
         }
