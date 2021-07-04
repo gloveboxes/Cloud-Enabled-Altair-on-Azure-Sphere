@@ -55,6 +55,7 @@
     var pub_topic_paste = "";
     var channelId = "";
     var display_name = "";
+    var mqtt_broker_connected = false;
 
     var client = null;
     var character_mode = false;
@@ -216,8 +217,14 @@
       if (!channel_set) {
         display_name = document.getElementById("displayName").value;
 
-        getChannelId(display_name);
-        current_line = "";
+        if (display_name == '') {
+          alert('ERROR: Missing the IoT Central device display name')
+        } else {
+          if (mqtt_broker_connected){
+            client.disconnect();
+          }
+          getChannelId(display_name);
+        }
       }
     }
 
@@ -272,6 +279,7 @@
       console.log("onConnect");
       client.subscribe(sub_topic);
       document.getElementById("connectState").innerHTML = "MQTT Broker: Connected";
+      mqtt_broker_connected = true;
     }
 
     // called when the client loses its connection
@@ -280,6 +288,7 @@
         console.log("onConnectionLost:" + responseObject.errorMessage);
         document.getElementById("connectState").innerHTML = "MQTT Broker: Not connected";
         alert("Connection lost to the MQTT broker. Refresh page to reconnect");
+        mqtt_broker_connected = false;
       }
     }
 
@@ -297,19 +306,21 @@
 </head>
 
 <body onload="initTerminal();">
+  <div>
+    Enter IoT Central device display name
+    <input type="text" id="displayName">
+    <input type="button" value="Connect" onclick="connect();">
+  </div>
+  <br />
   <div id="connectState">MQTT Broker: Not connected</div>
-  <div id="inputmode"></div>
+  <div id="inputmode">Line input mode: Default (Ctrl+L to toggle)</div>
   <div id="terminal"></div>
   <script src="https://unpkg.com/xterm@4.4.0/lib/xterm.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript"></script>
   <script src="Javascript/xterm.js"></script>
   <!-- <script src="Javascript/app.js"></script> -->
-  <br />
-  <div>
-    Device display name
-    <input type="text" id="displayName">
-    <input type="button" value="Connect" onclick="connect();">
-  </div>
+
+
 </body>
 
 </html>

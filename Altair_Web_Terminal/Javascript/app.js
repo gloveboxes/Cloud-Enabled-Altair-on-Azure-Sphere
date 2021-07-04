@@ -35,10 +35,6 @@
     return Math.floor(Math.random() * Math.floor(max));
   }
 
-  windows.helloWorld = function (){
-    alert("hello world");
-  }
-
   const getChannelId = async (msg) => {
     const words = msg.trim().split(" ");
 
