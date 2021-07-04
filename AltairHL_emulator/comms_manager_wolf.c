@@ -277,7 +277,7 @@ static void client_disconnect(MQTTCtx* mqttCtx) {
 static int init_mqtt_connection(MQTTCtx* mqttCtx) {
 	int rc = MQTT_CODE_SUCCESS;
 
-	Log_Debug("MQTT Client: QoS %d, Use TLS %d", mqttCtx->qos,
+	Log_Debug("MQTT Client: QoS %d, Use TLS %d\n", mqttCtx->qos,
 		mqttCtx->use_tls);
 
 	/* Initialize Network */
@@ -299,7 +299,7 @@ static int init_mqtt_connection(MQTTCtx* mqttCtx) {
 		mqttCtx->rx_buf, MAX_BUFFER_SIZE,
 		(int)mqttCtx->cmd_timeout_ms);
 
-	Log_Debug("MQTT Init: %s (%d)", MqttClient_ReturnCodeToString(rc), rc);
+	Log_Debug("MQTT Init: %s (%d)\n", MqttClient_ReturnCodeToString(rc), rc);
 
 	if (rc != MQTT_CODE_SUCCESS) {
 		return rc;
