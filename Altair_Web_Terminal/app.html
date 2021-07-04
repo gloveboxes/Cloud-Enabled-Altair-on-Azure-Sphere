@@ -234,6 +234,7 @@
         }
       } else {
         alert("HTTP-Error: " + response.status + ". Check IoT Central device display name entered.");
+        document.getElementById("connectState").innerHTML = "MQTT Broker: Not connected";
       }
     }
 
