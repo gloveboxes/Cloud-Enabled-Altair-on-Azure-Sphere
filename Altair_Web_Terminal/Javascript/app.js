@@ -35,31 +35,9 @@
     return Math.floor(Math.random() * Math.floor(max));
   }
 
-  function helloWorld(){
+  windows.helloWorld = function (){
     alert("hello world");
   }
-
-  // const setChannelId = async (msg) => {
-  //   const sleep = (delay) =>
-  //     new Promise((resolve) => setTimeout(resolve, delay));
-  //   const words = msg.trim().split(" ");
-
-  //   while (!client.isConnected()) {
-  //     await sleep(1000);
-  //   }
-
-  //   if (words.length == 2) {
-  //     const url = `/api/control?channelid=${channelId}&displayname=${words[1]}`;
-  //     term.write("\r\n\r\nCONNECTING...");
-  //     const response = await fetch(url);
-  //     term.write("\r\n");
-
-  //     channelSet = true;
-  //   } else {
-  //     alert("Expected HELLO followed by Azure Sphere Device ID");
-  //     term.write("\r\n");
-  //   }
-  // };
 
   const getChannelId = async (msg) => {
     const words = msg.trim().split(" ");
@@ -143,16 +121,7 @@
     console.log("onConnect");
     client.subscribe(sub_topic);
     document.getElementById("connectState").innerHTML = "MQTT Broker: Connected";
-    // sendControl('C');
   }
-
-  // // called when the client loses its connection
-  // function onConnectionLost(responseObject) {
-  //   if (responseObject.errorCode !== 0) {
-  //     console.log("onConnectionLost:" + responseObject.errorMessage);
-  //     document.getElementById("connectState").innerHTML = "MQTT Broker: Not connected";
-  //   }
-  // }
 
   // called when the client loses its connection
   function onConnectionLost(responseObject) {
