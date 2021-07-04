@@ -307,6 +307,7 @@
       client.subscribe(sub_topic);
       document.getElementById("connectState").innerHTML = "MQTT Broker: Connected";
       mqtt_broker_connected = true;
+      term.write("\r\nCONNECTED...");
     }
 
     // called when the client loses its connection
