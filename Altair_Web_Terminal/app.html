@@ -214,17 +214,15 @@
     }
 
     function connect() {
-      if (!channel_set) {
-        display_name = document.getElementById("displayName").value;
+      display_name = document.getElementById("displayName").value;
 
-        if (display_name == '') {
-          alert('ERROR: Missing the IoT Central device display name')
-        } else {
-          if (mqtt_broker_connected){
-            client.disconnect();
-          }
-          getChannelId(display_name);
+      if (display_name == '') {
+        alert('ERROR: Missing the IoT Central device display name')
+      } else {
+        if (mqtt_broker_connected) {
+          client.disconnect();
         }
+        getChannelId(display_name);
       }
     }
 
