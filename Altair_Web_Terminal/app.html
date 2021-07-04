@@ -233,7 +233,7 @@
 
         }
       } else {
-        alert("HTTP-Error: " + response.status + ". Check IoT Central device display name entered.");
+        alert("HTTP-Error: " + response.status + ". Check the IoT Central device name you entered.");
         document.getElementById("connectState").innerHTML = "MQTT Broker: Not connected";
       }
     }
@@ -242,7 +242,7 @@
       display_name = document.getElementById("displayName").value;
 
       if (display_name == '') {
-        alert('ERROR: Missing the IoT Central device display name')
+        alert('ERROR: Missing the IoT Central device name')
       } else {
         localStorage['display_name'] = display_name;
         if (mqtt_broker_connected) {
@@ -329,7 +329,7 @@
 
 <body onload="initTerminal();">
   <div>
-    Enter IoT Central device display name
+    Enter your IoT Central device name
     <input type="text" id="displayName">
     <input type="button" value="Connect" onclick="connect();">
   </div>
