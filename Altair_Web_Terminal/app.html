@@ -90,6 +90,29 @@
         }
       };
 
+      // paste value
+      term.on("paste", function (data) {
+        if (character_mode) { return; }
+
+        if (data.length < 256) {
+          current_line += data;
+          term.write(data);
+          return;
+        }
+
+        data += "\r"
+        var chunks = chunkSubstr(data, 256);
+        chunks.forEach(element => {
+          if (mqtt_broker_connected) {
+            const message = new Paho.MQTT.Message(element);
+            message.destinationName = pub_topic_paste;
+            client.send(message);
+            term.write(element);
+          }
+        });
+        current_line = "";
+      });
+
       term.prompt("");
 
       term.on("key", function (key, ev) {
@@ -181,6 +204,16 @@
           }
         }
       });
+    }
+
+    function chunkSubstr(str, size) {
+      const numChunks = Math.ceil(str.length / size)
+      const chunks = new Array(numChunks)
+
+      for (let i = 0, o = 0; i < numChunks; ++i, o += size) {
+        chunks[i] = str.substr(o, size)
+      }
+      return chunks
     }
 
     const getChannelId = async (displayName) => {
