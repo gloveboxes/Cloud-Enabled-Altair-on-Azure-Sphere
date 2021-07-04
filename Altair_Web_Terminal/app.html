@@ -83,19 +83,10 @@
       // term.write(`WELCOME TO ALTAIR TERMINAL ${clientPrincipal.userDetails}\r\n\r\n`);
 
       term.prompt = (msg) => {
-        if (current_line.toUpperCase().startsWith("HELLO")) {
-          if (!channel_set) {
-            getChannelId(current_line);
-            current_line = "";
-          }
-        } else if (current_line.toUpperCase().startsWith("BYE")) {
-          sleep(3000).then(() => (window.location.href = "/.auth/logout"));
-        } else {
-          if (channel_set) {
-            const message = new Paho.MQTT.Message(msg);
-            message.destinationName = pub_topic;
-            client.send(message);
-          }
+        if (mqtt_broker_connected) {
+          const message = new Paho.MQTT.Message(msg);
+          message.destinationName = pub_topic;
+          client.send(message);
         }
       };
 
@@ -224,6 +215,8 @@
         localStorage['display_name'] = display_name;
         if (mqtt_broker_connected) {
           client.disconnect();
+          mqtt_broker_connected = false;
+          document.getElementById("connectState").innerHTML = "MQTT Broker: Not connected";
         }
         getChannelId(display_name);
       }
@@ -268,7 +261,7 @@
     }
 
     function sendControl(msg) {
-      if (channel_set) {
+      if (mqtt_broker_connected) {
         const message = new Paho.MQTT.Message(msg);
         message.destinationName = pub_topic_control;
         client.send(message);
