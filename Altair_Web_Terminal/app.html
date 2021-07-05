@@ -23,6 +23,30 @@
       font-weight: bold;
     }
 
+    input[type=button] {
+      background-color: black;
+      background-image: radial-gradient(rgba(0, 150, 0, 0.75), black 120%);
+      border: white;
+      color: white;
+      padding: 1px 1px;
+      /* text-decoration: none; */
+      /* margin: 4px 2px; */
+      cursor: pointer;
+      font: 1.3rem Courier New;
+      text-shadow: 0 0 5px #C8C8C8;
+    }
+
+    input[type=text] {
+      background-color:#C8C8C8;
+      border: white;
+      border-width: thick;
+      /* color: white; */
+      padding: 1px 1px;
+      text-decoration: none;
+      font: 1.3rem Courier New;
+      text-shadow: 0 0 5px #C8C8C8;
+    }
+
     /* https://css-tricks.com/old-timey-terminal-styling/ */
 
     body {
@@ -330,7 +354,7 @@
 <body onload="initTerminal();">
   <div>
     Enter your IoT Central device name
-    <input type="text" id="displayName">
+    <input type="text" id="displayName" value="device name">
     <input type="button" value="Connect" onclick="connect();">
   </div>
   <br />
