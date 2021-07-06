@@ -61,8 +61,9 @@
 #define BASIC_SAMPLES_DIRECTORY "BasicSamples"
 
 static bool loadRomImage(char *romImageName, uint16_t loadAddress);
-static void connection_status_led_on_handler(EventLoopTimer *eventLoopTimer);
+static void *altair_thread(void *arg);
 static void connection_status_led_off_handler(EventLoopTimer *eventLoopTimer);
+static void connection_status_led_on_handler(EventLoopTimer *eventLoopTimer);
 static void device_twin_set_temperature_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding);
 static void intercore_disk_cache_receive_msg_handler(void *data_block, ssize_t message_length);
 static void intercore_environment_receive_msg_handler(void *data_block, ssize_t message_length);
@@ -70,7 +71,7 @@ static void measure_sensor_handler(EventLoopTimer *eventLoopTimer);
 static void mqtt_dowork_handler(EventLoopTimer *eventLoopTimer);
 static void panel_refresh_handler(EventLoopTimer *eventLoopTimer);
 static void process_control_panel_commands(void);
-static void *altair_thread(void *arg);
+static void WatchdogMonitorTimerHandler(EventLoopTimer *eventLoopTimer);
 
 DX_USER_CONFIG userConfig;
 static float Temperature = 0.0; // storage for weather data
@@ -89,6 +90,9 @@ uint16_t bus_switches = 0x00;
 
 int altair_spi_fd = -1;
 int console_fd = -1;
+
+const struct itimerspec watchdogInterval = {{30, 0}, {30, 0}};
+timer_t watchdogTimer;
 
 const uint8_t reverse_lut[16] = {0x0, 0x8, 0x4, 0xc, 0x2, 0xa, 0x6, 0xe, 0x1, 0x9, 0x5, 0xd, 0x3, 0xb, 0x7, 0xf};
 
@@ -185,6 +189,7 @@ static DX_TIMER_BINDING measure_sensor_timer = {.period = {5, 0}, .name = "measu
 static DX_TIMER_BINDING memory_diagnostics_timer = {.period = {60, 0}, .name = "memory_diagnostics_timer", .handler = memory_diagnostics_handler};
 static DX_TIMER_BINDING mqtt_do_work_timer = {.period = {0, 300 * OneMS}, .name = "mqtt_do_work_timer", .handler = mqtt_dowork_handler};
 static DX_TIMER_BINDING panel_refresh_timer = {.period = {0, 20 * OneMS}, .name = "panel_refresh_timer", .handler = panel_refresh_handler};
+static DX_TIMER_BINDING watchdogMonitorTimer = {.period = {5, 0}, .name = "watchdogMonitorTimer", .handler = WatchdogMonitorTimerHandler};
 
 // Azure IoT Central Properties (Device Twins)
 DX_DEVICE_TWIN_BINDING dt_channelId = {.twinProperty = "DesiredChannelId", .twinType = DX_TYPE_INT, .handler = device_twin_set_channel_id_handler};
@@ -228,7 +233,8 @@ static DX_TIMER_BINDING *timerSet[] = {&connectionStatusLedOnTimer,
                                        &measure_sensor_timer,
                                        &restartDeviceOneShotTimer,
                                        &mqtt_do_work_timer,
-                                       &panel_refresh_timer
+                                       &panel_refresh_timer,
+                                       &watchdogMonitorTimer
 #ifdef ALTAIR_FRONT_PANEL_CLICK
                                        ,
                                        &turnOffNotificationsTimer
@@ -242,6 +248,37 @@ static DX_DEVICE_TWIN_BINDING *deviceTwinBindingSet[] = {&dt_reportedDeviceStart
 DX_DIRECT_METHOD_BINDING *directMethodBindingSet[] = {&dm_restartDevice};
 
 // End of variable declarations
+
+/// <summary>
+/// This timer extends the app level lease watchdog timer
+/// </summary>
+/// <param name="eventLoopTimer"></param>
+static void WatchdogMonitorTimerHandler(EventLoopTimer *eventLoopTimer)
+{
+    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
+        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
+        return;
+    }
+    timer_settime(watchdogTimer, 0, &watchdogInterval, NULL);
+}
+
+/// <summary>
+/// Set up watchdog timer - the lease is extended via the WatchdogMonitorTimerHandler function
+/// </summary>
+/// <param name=""></param>
+void SetupWatchdog(void)
+{
+    struct sigevent alarmEvent;
+    alarmEvent.sigev_notify = SIGEV_SIGNAL;
+    alarmEvent.sigev_signo = SIGALRM;
+    alarmEvent.sigev_value.sival_ptr = &watchdogTimer;
+
+    if (timer_create(CLOCK_MONOTONIC, &alarmEvent, &watchdogTimer) == 0) {
+        if (timer_settime(watchdogTimer, 0, &watchdogInterval, NULL) == -1) {
+            Log_Debug("Issue setting watchdog timer. %s %d\n", strerror(errno), errno);
+        }
+    }
+}
 
 static void mqtt_connected_cb(void)
 {
@@ -882,6 +919,8 @@ static void InitPeripheralAndHandlers(void)
 
     dx_timerOneShotSet(&connectionStatusLedOnTimer, &(struct timespec){1, 400 * OneMS});
     dx_startThreadDetached(altair_thread, NULL, "altair_thread");
+
+    SetupWatchdog();
 }
 
 /// <summary>
