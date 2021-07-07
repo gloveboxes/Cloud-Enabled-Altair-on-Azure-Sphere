@@ -23,7 +23,7 @@ static pthread_mutex_t intercore_disk_lock = PTHREAD_MUTEX_INITIALIZER;
 
 static vdisk_mqtt_write_sector_t write_sector;
 static bool read_from_cache = false;
-static uint32_t sector_requested = 0;
+static uint32_t sector_requested = __UINT32_MAX__;
 
 //static uint16_t cal_crc(uint8_t *sector)
 //{
@@ -118,8 +118,10 @@ void vdisk_cache_response_cb(INTERCORE_DISK_DATA_BLOCK_T *intercore_disk_block)
 
 void vdisk_mqtt_response_cb(uint8_t *sector)
 {
-    // first 4 bytes form the sector number in the response from the virtual disk server
+    // first 4 bytes are the sector number in the response from the virtual disk server
     if (*(uint32_t *)(sector) == sector_requested) {
+        sector_requested = __UINT32_MAX__;
+
         pthread_mutex_lock(&lock);
 
         // Skip the first 4 bytes as they are the sector data
@@ -158,9 +160,13 @@ bool read_virtual_sector(disk_t *pDisk)
     if (read_from_cache) {
         result = true;
     } else {
+
+        // save sector requested to be compared with inbound mqtt sector
+        sector_requested = pDisk->diskPointer;
+
         // data not found in cache - try reading from vdisk storage
         vdisk_mqtt_read_sector(pDisk->diskPointer);
-        sector_requested = pDisk->diskPointer;
+
         // allow up to 8 seconds for the io to complete
         clock_gettime(CLOCK_REALTIME, &now);
         now.tv_sec += 8;
