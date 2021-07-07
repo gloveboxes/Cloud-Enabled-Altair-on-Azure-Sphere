@@ -9,7 +9,8 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "args": ["-b", "test.mosquitto.org", "-c", "1234567"]
         }
     ]
 }

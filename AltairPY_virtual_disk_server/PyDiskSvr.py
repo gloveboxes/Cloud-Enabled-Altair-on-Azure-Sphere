@@ -7,6 +7,8 @@ import paho.mqtt.client as mqtt
 import time
 from random import randint, seed
 from random import random
+import sys
+import getopt
 
 mqtt_broker_url = "<REPLACE_WITH_YOUR_MQTT_BROKER_URL>"
 
@@ -65,9 +67,10 @@ def on_message(client, userdata, msg):
         response_topic = msg.topic[:-4] + "data"
         sector = channels[channel_id][sectorOffset:sectorOffset + 137]
 
-        # print("Read Offset {offset} for channel {channel_id}".format(offset = sectorOffset, channel_id = channel_id))
+        # the first 4 bytes are the requested sector number
+        out_packet = struct.pack('I137s', sectorOffset, sector)
 
-        client.publish(response_topic, sector)      # 137 == sector size)
+        client.publish(response_topic, out_packet)      # 4 + 137 == sector size)
 
         return
 
@@ -80,9 +83,10 @@ def on_message(client, userdata, msg):
         channels[channel_id][sectorOffset: sectorOffset + len(chunk)] = chunk
         disk_dirty[channel_id] = True
 
+
 def save_disk():
     global channels, disk_dirty
-    for channel_id in disk_dirty: 
+    for channel_id in disk_dirty:
         if disk_dirty[channel_id]:
             print("Backing up disk for channel id: " + str(channel_id))
             fp = open(str(channel_id) + '.dsk', "wb")
@@ -99,23 +103,83 @@ def memoryCRC(diskData):
     print('memCRC : ', hex(memCRC))
 
 
-print("Altair Virtual Disk Server")
+def main(argv):
+    global mqtt_broker_url, vdiskReadMqttTopic, vdiskWriteMqttTopic
 
-seed(1)
+    shared_mode = False
+    channel_set = False
+    broker_set = False
+    channel_id = None
 
-mqtt_client_id = 'altrairvdisk{random_number}'.format(
-    random_number=randint(10000, 99999))
+    try:
+        opts, args = getopt.getopt(argv, "hsc:b:", ["channel=", "broker="])
+    except getopt.GetoptError:
+        print('test.py -c <channel> -s')
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == '-h':
+            print('PyDiskSvr.py -b <mqtt broker url> -c <channel> -s <shared mode> ')
+            sys.exit()
+        elif opt in ("-b", "--broker"):
+            mqtt_broker_url = arg
+            broker_set = True
+        elif opt in ("-c", "--channel"):
+            channel_id = arg.strip()
+            channel_set = True
+        elif opt in ("-s", "--shared"):
+            shared_mode = True
 
-client = mqtt.Client(mqtt_client_id, mqtt.MQTTv311)
+    if not broker_set:
+        print("ERROR: Missing MQTT Broker URL")
+        sys.exit()
 
-client.on_connect = on_connect
-client.on_disconnect = on_disconnect
-client.on_message = on_message
+    if channel_set == True and shared_mode == True:
+        print("ERROR: You cannot set a Channel ID AND enable shared mode together")
+        sys.exit()
 
-client.connect(mqtt_broker_url)
+    if channel_set == False and shared_mode == False:
+        print("ERROR: You must specify either Channel ID or Shared Mode")
+        sys.exit()
 
-client.loop_start()
+    if not channel_id.isnumeric():
+        print("ERROR: Channel ID must be numeric")
+        sys.exit()
+    
+    if len(channel_id) > 8:
+        print("ERROR: Channel ID must be less than 9 chanacters")
+        sys.exit()
 
-while True:  # sleep forever
-    time.sleep(30)
-    save_disk()
+    if channel_set:
+        vdiskReadMqttTopic = "altair/{channel_id}/vdisk/read".format(channel_id=channel_id)
+        vdiskWriteMqttTopic = "altair/{channel_id}/vdisk/write".format(channel_id=channel_id)
+    
+    print("MQTT Broker URL: {mqtt_broker_url}".format(mqtt_broker_url=mqtt_broker_url))
+    print("Channel ID: {channel_id}".format(channel_id=channel_id))
+    print("Shared Mode: {shared_mode} ".format(shared_mode=shared_mode))
+    print("Read Topic: ", vdiskReadMqttTopic)
+    print("Write topic: ", vdiskWriteMqttTopic)
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
+
+    print("Altair Virtual Disk Server")
+
+    seed(1)
+
+    mqtt_client_id = 'altrairvdisk{random_number}'.format(
+        random_number=randint(10000, 99999))
+
+    client = mqtt.Client(mqtt_client_id, mqtt.MQTTv311)
+
+    client.on_connect = on_connect
+    client.on_disconnect = on_disconnect
+    client.on_message = on_message
+
+    client.connect(mqtt_broker_url)
+
+    client.loop_start()
+
+    while True:  # sleep forever
+        time.sleep(30)
+        save_disk()
