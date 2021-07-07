@@ -91,7 +91,7 @@ uint16_t bus_switches = 0x00;
 int altair_spi_fd = -1;
 int console_fd = -1;
 
-const struct itimerspec watchdogInterval = {{30, 0}, {30, 0}};
+const struct itimerspec watchdogInterval = {{60, 0}, {60, 0}};
 timer_t watchdogTimer;
 
 const uint8_t reverse_lut[16] = {0x0, 0x8, 0x4, 0xc, 0x2, 0xa, 0x6, 0xe, 0x1, 0x9, 0x5, 0xd, 0x3, 0xb, 0x7, 0xf};
@@ -291,14 +291,14 @@ static void mqtt_connected_cb(void)
     if (!connection_initialised) {
         connection_initialised = true;
         int len = snprintf(msgBuffer, sizeof(msgBuffer), connected_message, ALTAIR_ON_AZURE_SPHERE_VERSION, AZURE_SPHERE_DEVX_VERSION);
-        queue_mqtt_message(msgBuffer, len);
+        queue_mqtt_message(msgBuffer, (size_t)len);
         cpu_operating_mode = CPU_RUNNING;
         // if (dt_desiredCpuState.twinState) {
         //	cpu_operating_mode = CPU_RUNNING;
         //}
     } else {
         int len = snprintf(msgBuffer, sizeof(msgBuffer), reconnected_message, ALTAIR_ON_AZURE_SPHERE_VERSION, AZURE_SPHERE_DEVX_VERSION);
-        queue_mqtt_message(msgBuffer, len);
+        queue_mqtt_message(msgBuffer, (size_t)len);
     }
 }
 
