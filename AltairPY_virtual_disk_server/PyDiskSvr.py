@@ -11,6 +11,8 @@ import sys
 import getopt
 
 mqtt_broker_url = "<REPLACE_WITH_YOUR_MQTT_BROKER_URL>"
+mqtt_username = None
+mqtt_password = None
 
 vdiskReadMqttTopic = "altair/+/vdisk/read"
 vdiskWriteMqttTopic = "altair/+/vdisk/write"
@@ -104,7 +106,7 @@ def memoryCRC(diskData):
 
 
 def main(argv):
-    global mqtt_broker_url, vdiskReadMqttTopic, vdiskWriteMqttTopic
+    global mqtt_broker_url, vdiskReadMqttTopic, vdiskWriteMqttTopic, mqtt_username, mqtt_password
 
     shared_mode = False
     channel_set = False
@@ -112,17 +114,21 @@ def main(argv):
     channel_id = None
 
     try:
-        opts, args = getopt.getopt(argv, "hsc:b:", ["channel=", "broker="])
+        opts, args = getopt.getopt(argv, "hsc:b:u:p:", ["channel=", "broker=", "username=", ["password="]])
     except getopt.GetoptError:
         print('test.py -c <channel> -s')
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print('PyDiskSvr.py -b <mqtt broker url> -c <channel> -s <shared mode> ')
+            print('PyDiskSvr.py -b <mqtt broker url> -c <channel> -s <shared mode> -u <mqtt username> -p <mqtt password>')
             sys.exit()
         elif opt in ("-b", "--broker"):
             mqtt_broker_url = arg
             broker_set = True
+        elif opt in ("-u", "--username"):
+            mqtt_username = arg
+        elif opt in ("-p", "--password"):
+            mqtt_password = arg
         elif opt in ("-c", "--channel"):
             channel_id = arg.strip()
             channel_set = True
@@ -141,18 +147,22 @@ def main(argv):
         print("ERROR: You must specify either Channel ID or Shared Mode")
         sys.exit()
 
-    if not channel_id.isnumeric():
+    if mqtt_username is None or mqtt_password is None:
+        print("ERROR: You must specify MQTT username or password")
+        sys.exit()
+
+    if channel_set and not channel_id.isnumeric():
         print("ERROR: Channel ID must be numeric")
         sys.exit()
-    
-    if len(channel_id) > 8:
+
+    if channel_set and len(channel_id) > 8:
         print("ERROR: Channel ID must be less than 9 chanacters")
         sys.exit()
 
     if channel_set:
         vdiskReadMqttTopic = "altair/{channel_id}/vdisk/read".format(channel_id=channel_id)
         vdiskWriteMqttTopic = "altair/{channel_id}/vdisk/write".format(channel_id=channel_id)
-    
+
     print("MQTT Broker URL: {mqtt_broker_url}".format(mqtt_broker_url=mqtt_broker_url))
     print("Channel ID: {channel_id}".format(channel_id=channel_id))
     print("Shared Mode: {shared_mode} ".format(shared_mode=shared_mode))
@@ -175,6 +185,8 @@ if __name__ == "__main__":
     client.on_connect = on_connect
     client.on_disconnect = on_disconnect
     client.on_message = on_message
+
+    client.username_pw_set(username=mqtt_username, password=mqtt_password)
 
     client.connect(mqtt_broker_url)
 
