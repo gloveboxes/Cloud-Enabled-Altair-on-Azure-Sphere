@@ -16,7 +16,8 @@ namespace Glovebox.Function
                 userName = Environment.GetEnvironmentVariable("MQTT_USERNAME"),
                 password = Environment.GetEnvironmentVariable("MQTT_PASSWORD"),
                 broker = Environment.GetEnvironmentVariable("MQTT_BROKER"),
-                brokerPort = Environment.GetEnvironmentVariable("MQTT_BROKER_PORT")
+                brokerPort = Environment.GetEnvironmentVariable("MQTT_BROKER_PORT"),
+                enableSsl = Environment.GetEnvironmentVariable("MQTT_ENABLE_SSL")
             });
         }
     }

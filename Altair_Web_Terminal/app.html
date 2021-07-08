@@ -308,7 +308,7 @@
         keepAliveInterval: 30,
         mqttVersion: 4,
         cleanSession: true,
-        useSSL: true,
+        useSSL: mqttCredentials.enableSsl,
         onSuccess: onConnect,
         userName: mqttCredentials.userName,
         password: mqttCredentials.password,
