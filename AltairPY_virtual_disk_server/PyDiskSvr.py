@@ -11,8 +11,6 @@ import sys
 import getopt
 
 mqtt_broker_url = "<REPLACE_WITH_YOUR_MQTT_BROKER_URL>"
-mqtt_username = None
-mqtt_password = None
 
 vdiskReadMqttTopic = "altair/+/vdisk/read"
 vdiskWriteMqttTopic = "altair/+/vdisk/write"
@@ -106,7 +104,7 @@ def memoryCRC(diskData):
 
 
 def main(argv):
-    global mqtt_broker_url, vdiskReadMqttTopic, vdiskWriteMqttTopic, mqtt_username, mqtt_password
+    global mqtt_broker_url, vdiskReadMqttTopic, vdiskWriteMqttTopic
 
     shared_mode = False
     channel_set = False
@@ -114,7 +112,7 @@ def main(argv):
     channel_id = None
 
     try:
-        opts, args = getopt.getopt(argv, "hsc:b:", ["channel=", "broker="]])
+        opts, args = getopt.getopt(argv, "hsc:b:", ["channel=", "broker="])
     except getopt.GetoptError:
         print('test.py -c <channel> -s')
         sys.exit(2)
@@ -141,10 +139,6 @@ def main(argv):
 
     if channel_set == False and shared_mode == False:
         print("ERROR: You must specify either Channel ID or Shared Mode")
-        sys.exit()
-
-    if mqtt_username is None or mqtt_password is None:
-        print("ERROR: You must specify MQTT username or password")
         sys.exit()
 
     if channel_set and not channel_id.isnumeric():
