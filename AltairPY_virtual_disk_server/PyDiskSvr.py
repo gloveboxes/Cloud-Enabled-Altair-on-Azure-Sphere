@@ -114,21 +114,17 @@ def main(argv):
     channel_id = None
 
     try:
-        opts, args = getopt.getopt(argv, "hsc:b:u:p:", ["channel=", "broker=", "username=", ["password="]])
+        opts, args = getopt.getopt(argv, "hsc:b:", ["channel=", "broker="]])
     except getopt.GetoptError:
         print('test.py -c <channel> -s')
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print('PyDiskSvr.py -b <mqtt broker url> -c <channel> -s <shared mode> -u <mqtt username> -p <mqtt password>')
+            print('PyDiskSvr.py -b <mqtt broker url> -c <channel> -s <shared mode>')
             sys.exit()
         elif opt in ("-b", "--broker"):
             mqtt_broker_url = arg
             broker_set = True
-        elif opt in ("-u", "--username"):
-            mqtt_username = arg
-        elif opt in ("-p", "--password"):
-            mqtt_password = arg
         elif opt in ("-c", "--channel"):
             channel_id = arg.strip()
             channel_set = True
@@ -185,8 +181,6 @@ if __name__ == "__main__":
     client.on_connect = on_connect
     client.on_disconnect = on_disconnect
     client.on_message = on_message
-
-    client.username_pw_set(username=mqtt_username, password=mqtt_password)
 
     client.connect(mqtt_broker_url)
 
