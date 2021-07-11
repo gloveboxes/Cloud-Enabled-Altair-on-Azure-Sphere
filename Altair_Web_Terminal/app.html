@@ -289,7 +289,6 @@
     async function mqttInit() {
       const res = await fetch("/api/mqtt-settings");
       const mqttCredentials = await res.json();
-      const enableSsl = mqttCredentials.enableSsl.toLowerCase() === 'true' ? true : false;
 
       // https://stackoverflow.com/questions/53051679/how-can-i-use-tls-with-paho-mqtt-over-javascript
       client = new Paho.MQTT.Client(
@@ -309,7 +308,7 @@
         keepAliveInterval: 30,
         mqttVersion: 4,
         cleanSession: true,
-        useSSL: enableSsl,
+        useSSL: true,
         onSuccess: onConnect,
         userName: mqttCredentials.userName,
         password: mqttCredentials.password,
