@@ -13,8 +13,6 @@ void init_altair_hardware(void)
         return;
     }
 
-    as1115_set_brightness(&retro_click, 2);
-
     as1115_clear(&retro_click);
 }
 
