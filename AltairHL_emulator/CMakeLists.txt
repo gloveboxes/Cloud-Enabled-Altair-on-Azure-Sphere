@@ -11,10 +11,10 @@ set(AVNET TRUE "AVNET Azure Sphere Starter Kit Revision 1 ")
 
 # SELECT FRONT PANEL CONFIG #######################################################################################
 #
-# set(ALTAIR_FRONT_PANEL_NONE TRUE "Altair on Azure Sphere with no panel.")
+set(ALTAIR_FRONT_PANEL_NONE TRUE "Altair on Azure Sphere with no panel.")
 # set(ALTAIR_FRONT_PANEL_KIT TRUE "Altair front panel board")
 # set(ALTAIR_FRONT_PANEL_CLICK TRUE "Altair front panel board using Click 4x4 keypad and Click 8x8 LED matrix")
-set(ALTAIR_FRONT_PANEL_RETRO_CLICK TRUE "Altair front panel board using 8800 Retro click")
+# set(ALTAIR_FRONT_PANEL_RETRO_CLICK TRUE "Altair front panel board using 8800 Retro click")
 #
 ###################################################################################################################
 
@@ -66,7 +66,7 @@ if (ALTAIR_FRONT_PANEL_KIT)
     add_compile_definitions(ALTAIR_FRONT_PANEL_KIT)
 
     set(Oem
-        "front_panel_kit.c"
+        "FrontPanels/front_panel_kit.c"
     )
     source_group("Oem" FILES ${Oem})
 endif(ALTAIR_FRONT_PANEL_KIT)
@@ -76,7 +76,7 @@ if (ALTAIR_FRONT_PANEL_CLICK)
     add_compile_definitions(ALTAIR_FRONT_PANEL_CLICK)
 
     set(Oem
-        "front_panel_click.c"
+        "FrontPanels/front_panel_click.c"
     )
     source_group("Oem" FILES ${Oem})
 endif(ALTAIR_FRONT_PANEL_CLICK)
@@ -86,7 +86,7 @@ if (ALTAIR_FRONT_PANEL_RETRO_CLICK)
     add_compile_definitions(ALTAIR_FRONT_PANEL_RETRO_CLICK)
 
     set(Oem
-        "front_panel_retro_click.c"
+        "FrontPanels/front_panel_retro_click.c"
     )
     source_group("Oem" FILES ${Oem})
 endif(ALTAIR_FRONT_PANEL_CLICK)
@@ -96,21 +96,21 @@ if (ALTAIR_FRONT_PANEL_NONE)
     add_compile_definitions(ALTAIR_FRONT_PANEL_NONE)
 
     set(Oem
-        "front_panel_none.c"
+        "FrontPanels/front_panel_none.c"
     )
     source_group("Oem" FILES ${Oem})
 endif(ALTAIR_FRONT_PANEL_NONE)
 
 
 set(Source
-    "88dcdd.c"
+    "Altair8800/88dcdd.c"
+    "Altair8800/intel8080.c"
+    "Altair8800/memory.c"
     "comms_manager_wolf.c"
-    "front_panel_virtual.c"
-    "intel8080.c"
+    "FrontPanels/front_panel_virtual.c"
     "iotc_manager.c"
     "location_from_ip.c"
     "main.c"
-    "memory.c"
     "storage.c"
     "utils.c"
     "weather.c"
@@ -140,6 +140,9 @@ target_link_libraries(${PROJECT_NAME} applibs pthread gcc_s c azure_sphere_devx 
 target_include_directories(${PROJECT_NAME} PUBLIC AzureSphereDevX/include )
 target_include_directories(${PROJECT_NAME} PUBLIC ../IntercoreContract)
 target_include_directories(${PROJECT_NAME} PUBLIC wolfMQTT wolfMQTT/wolfmqtt ./ )
+include_directories(${CMAKE_SOURCE_DIR} FrontPanels)
+include_directories(${CMAKE_SOURCE_DIR} Altair8800)
+
 
 target_compile_options(${PROJECT_NAME} PRIVATE -Wno-unknown-pragmas)
 

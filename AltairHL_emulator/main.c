@@ -840,7 +840,7 @@ static bool loadRomImage(char *romImageName, uint16_t loadAddress)
 static void load8kRom(void)
 {
     const uint8_t rom[] = {
-#include "8krom.h"
+#include "Altair8800/8krom.h"
     };
     memcpy(memory, rom, sizeof(rom));
 }
