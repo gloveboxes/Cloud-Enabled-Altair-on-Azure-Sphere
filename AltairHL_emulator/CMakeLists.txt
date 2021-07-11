@@ -21,7 +21,7 @@ set(ALTAIR_FRONT_PANEL_CLICK TRUE "Altair front panel board using Click 4x4 keyp
 #
 add_compile_definitions(ALTAIR_MQTT_HOST="test.mosquitto.org")
 add_compile_definitions(ALTAIR_MQTT_SECURE_PORT_WOLF=8884)
-add_compile_definitions(MQTT_CA_CERTIFICATE="certs/mosquitto.org.crt")
+add_compile_definitions(MQTT_CA_CERTIFICATE="certs/ca.crt")
 add_compile_definitions(MQTT_CLIENT_PRIVATE_KEY="certs/client.key")
 add_compile_definitions(MQTT_CLIENT_CERTIFICATE="certs/client.crt")
 
@@ -176,4 +176,4 @@ if (SEEED_STUDIO_RDB)
     azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "../HardwareDefinitions/mt3620_rdb" TARGET_DEFINITION "azure_sphere_learning_path.json")
 endif()
 
-azsphere_target_add_image_package(${PROJECT_NAME} RESOURCE_FILES  ${MQTT_CA_CERTIFICATE} ${MQTT_CLIENT_PRIVATE_KEY} ${MQTT_CLIENT_CERTIFICATE} "BasicSamples/STARTREK.BAS" "BasicSamples/TICTACTOE.BAS" "BasicSamples/SIMPLE.BAS" "BasicSamples/LOOPY.BAS" "BasicSamples/WEATHER.BAS" "BasicSamples/IOT.BAS" "Disks/88dskrom.bin" "Disks/cpm63k.dsk")
+azsphere_target_add_image_package(${PROJECT_NAME} RESOURCE_FILES  "certs/ca.crt" "certs/client.key" "certs/client.crt" "BasicSamples/STARTREK.BAS" "BasicSamples/TICTACTOE.BAS" "BasicSamples/SIMPLE.BAS" "BasicSamples/LOOPY.BAS" "BasicSamples/WEATHER.BAS" "BasicSamples/IOT.BAS" "Disks/88dskrom.bin" "Disks/cpm63k.dsk")
