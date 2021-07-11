@@ -13,13 +13,14 @@ set(AVNET TRUE "AVNET Azure Sphere Starter Kit Revision 1 ")
 #
 # set(ALTAIR_FRONT_PANEL_NONE TRUE "Altair on Azure Sphere with no panel.")
 # set(ALTAIR_FRONT_PANEL_KIT TRUE "Altair front panel board")
-set(ALTAIR_FRONT_PANEL_CLICK TRUE "Altair front panel board using Click 4x4 keypad and Click 8x8 LED matrix")
+# set(ALTAIR_FRONT_PANEL_CLICK TRUE "Altair front panel board using Click 4x4 keypad and Click 8x8 LED matrix")
+set(ALTAIR_FRONT_PANEL_RETRO_CLICK TRUE "Altair front panel board using 8800 Retro click")
 #
 ###################################################################################################################
 
 # MQTT BROKER CONFIG ##############################################################################################
 #
-add_compile_definitions(ALTAIR_MQTT_HOST="test.mosquitto.org")
+add_compile_definitions(ALTAIR_MQTT_HOST="mosquitto-broker.australiaeast.cloudapp.azure.com")
 add_compile_definitions(ALTAIR_MQTT_SECURE_PORT_WOLF=8884)
 add_compile_definitions(MQTT_CA_CERTIFICATE="certs/ca.crt")
 add_compile_definitions(MQTT_CLIENT_PRIVATE_KEY="certs/client.key")
@@ -76,6 +77,16 @@ if (ALTAIR_FRONT_PANEL_CLICK)
 
     set(Oem
         "front_panel_click.c"
+    )
+    source_group("Oem" FILES ${Oem})
+endif(ALTAIR_FRONT_PANEL_CLICK)
+
+if (ALTAIR_FRONT_PANEL_RETRO_CLICK)
+
+    add_compile_definitions(ALTAIR_FRONT_PANEL_RETRO_CLICK)
+
+    set(Oem
+        "front_panel_retro_click.c"
     )
     source_group("Oem" FILES ${Oem})
 endif(ALTAIR_FRONT_PANEL_CLICK)
@@ -163,6 +174,18 @@ target_link_libraries(${PROJECT_NAME} 74HC165_driver)
 target_include_directories(${PROJECT_NAME} PUBLIC ../Drivers/CLICK_4x4_KEY_74HC165 )
 
 endif(ALTAIR_FRONT_PANEL_CLICK)
+
+
+add_subdirectory("../Drivers/CLICK_8800_RETRO_AS1115" as1115_driver)
+include_directories(${PROJECT_NAME} ../Drivers/CLICK_8800_RETRO_AS1115)
+target_link_libraries(${PROJECT_NAME} as1115_driver)
+target_include_directories(${PROJECT_NAME} PUBLIC ../Drivers/CLICK_8800_RETRO_AS1115 )
+
+if(ALTAIR_FRONT_PANEL_RETRO_CLICK)
+
+
+
+endif(ALTAIR_FRONT_PANEL_RETRO_CLICK)
 
 if(AVNET)    
     azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "../HardwareDefinitions/avnet_mt3620_sk" TARGET_DEFINITION "azure_sphere_learning_path.json")

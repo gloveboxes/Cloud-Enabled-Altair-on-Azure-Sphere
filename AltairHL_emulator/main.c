@@ -41,6 +41,10 @@
 #include "front_panel_click.h"
 #endif
 
+#ifdef ALTAIR_FRONT_PANEL_RETRO_CLICK
+#include "front_panel_retro_click.h"
+#endif
+
 #ifdef ALTAIR_FRONT_PANEL_KIT
 #include "front_panel_kit.h"
 #endif // ALTAIR_FRONT_PANEL_KIT
@@ -158,6 +162,17 @@ DX_TIMER_BINDING turnOffNotificationsTimer = {.period = {0, 0}, .name = "turnOff
 
 #endif //  ALTAIR_FRONT_PANEL_CLICK
 
+#ifdef ALTAIR_FRONT_PANEL_RETRO_CLICK
+
+CLICK_4X4_BUTTON_MODE click_4x4_key_mode = CONTROL_MODE;
+DX_GPIO_BINDING buttonB = {.pin = BUTTON_B, .direction = DX_INPUT, .detect = DX_GPIO_DETECT_LOW, .name = "buttonB"};
+as1115_t retro_click = {.interfaceId = ISU2, .handle = -1, .bitmap64 = 0, .keymap = 0, .debouncePeriodMilliseconds = 500};
+
+// turn off notifications
+DX_TIMER_BINDING turnOffNotificationsTimer = {.period = {0, 0}, .name = "turnOffNotificationsTimer", .handler = turn_off_notifications_handler};
+
+#endif //  ALTAIR_FRONT_PANEL_RETRO_CLICK
+
 #ifdef ALTAIR_FRONT_PANEL_KIT
 
 // static DX_GPIO memoryCS = { .pin = MEMORY_CS, .direction = DX_OUTPUT, .initialState =
@@ -211,7 +226,7 @@ static DX_DIRECT_METHOD_BINDING dm_restartDevice = {.methodName = "RestartDevice
 // Initialize Sets
 static DX_GPIO_BINDING *gpioSet[] = {&azure_iot_connected_led,
                                      &buttonA
-#ifdef ALTAIR_FRONT_PANEL_CLICK
+#if defined(ALTAIR_FRONT_PANEL_CLICK) || defined(ALTAIR_FRONT_PANEL_RETRO_CLICK)
                                      ,
                                      &buttonB
 #endif // ALTAIR_FRONT_PANEL_CLICK
@@ -235,7 +250,7 @@ static DX_TIMER_BINDING *timerSet[] = {&connectionStatusLedOnTimer,
                                        &mqtt_do_work_timer,
                                        &panel_refresh_timer,
                                        &watchdogMonitorTimer
-#ifdef ALTAIR_FRONT_PANEL_CLICK
+#if defined(ALTAIR_FRONT_PANEL_CLICK) || defined(ALTAIR_FRONT_PANEL_RETRO_CLICK)
                                        ,
                                        &turnOffNotificationsTimer
 #endif // ALTAIR_FRONT_PANEL_CLICK
