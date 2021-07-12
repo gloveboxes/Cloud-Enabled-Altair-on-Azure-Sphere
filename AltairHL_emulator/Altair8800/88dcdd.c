@@ -204,7 +204,7 @@ void set_status(uint8_t bit)
     Log_Debug(">>> %s\n", __func__);
 #endif
 
-    disk_drive.current->status &= ~bit;
+    disk_drive.current->status &= (uint8_t)~bit;
 }
 
 void clear_status(uint8_t bit)
@@ -405,7 +405,7 @@ uint8_t sector()
     }
 #endif
 
-    ret_val = disk_drive.current->sector << 1;
+    ret_val = (uint8_t)(disk_drive.current->sector << 1);
 #ifdef DISK_DEBUG
 #ifdef ARDUINO
     Serial.print("Current sector: ");

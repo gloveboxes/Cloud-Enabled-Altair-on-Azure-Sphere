@@ -66,9 +66,9 @@ void read_altair_panel_switches(void (*process_control_panel_commands)(void))
         // Log_Debug("Button %d pressed.\n", buttonMap[button_pressed - 1]);
 
         if (bus_switches & (1UL << (16 - button_pressed))) // mask in the address
-            bus_switches &= ~(1UL << (16 - button_pressed));
+            bus_switches &= (uint16_t)~(1UL << (16 - button_pressed));
         else
-            bus_switches |= (1UL << (16 - button_pressed));
+            bus_switches |= (uint16_t)(1UL << (16 - button_pressed));
 
         // Log_Debug("Input data: 0x%04lx\n", bus_switches);
 

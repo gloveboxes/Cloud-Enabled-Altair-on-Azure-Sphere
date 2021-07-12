@@ -20,7 +20,7 @@ set(ALTAIR_FRONT_PANEL_RETRO_CLICK TRUE "Altair front panel board using 8800 Ret
 
 # MQTT BROKER CONFIG ##############################################################################################
 #
-add_compile_definitions(ALTAIR_MQTT_HOST="mosquitto-broker.australiaeast.cloudapp.azure.com")
+add_compile_definitions(ALTAIR_MQTT_HOST="test.mosquitto.org")
 add_compile_definitions(ALTAIR_MQTT_SECURE_PORT_WOLF=8884)
 add_compile_definitions(MQTT_CA_CERTIFICATE="certs/ca.crt")
 add_compile_definitions(MQTT_CLIENT_PRIVATE_KEY="certs/client.key")
@@ -89,7 +89,7 @@ if (ALTAIR_FRONT_PANEL_RETRO_CLICK)
         "FrontPanels/front_panel_retro_click.c"
     )
     source_group("Oem" FILES ${Oem})
-endif(ALTAIR_FRONT_PANEL_CLICK)
+endif(ALTAIR_FRONT_PANEL_RETRO_CLICK)
 
 if (ALTAIR_FRONT_PANEL_NONE)
 
@@ -146,22 +146,22 @@ include_directories(${CMAKE_SOURCE_DIR} Altair8800)
 
 target_compile_options(${PROJECT_NAME} PRIVATE -Wno-unknown-pragmas)
 
+set_source_files_properties(Altair8800/intel8080.c PROPERTIES COMPILE_FLAGS -Wno-conversion)
+set_source_files_properties(Altair8800/intel8080.h PROPERTIES COMPILE_FLAGS -Wno-conversion)
+set_source_files_properties(Altair8800/memory.c PROPERTIES COMPILE_FLAGS -Wno-conversion)
 set_source_files_properties(comms_manager.c PROPERTIES COMPILE_FLAGS -Wno-conversion)
-set_source_files_properties(front_panel_virtual.c PROPERTIES COMPILE_FLAGS -Wno-conversion)
-set_source_files_properties(intel8080.c PROPERTIES COMPILE_FLAGS -Wno-conversion)
-set_source_files_properties(intel8080.h PROPERTIES COMPILE_FLAGS -Wno-conversion)
-set_source_files_properties(memory.c PROPERTIES COMPILE_FLAGS -Wno-conversion)
-set_source_files_properties(wolfMQTT/wolfmqtt/mqtt_client.c PROPERTIES COMPILE_FLAGS -Wno-conversion)
+set_source_files_properties(FrontPanels/front_panel_virtual.c PROPERTIES COMPILE_FLAGS -Wno-conversion)
+set_source_files_properties(wolfMQTT/examples/mqttnet.c PROPERTIES COMPILE_FLAGS -Wno-sign-conversion)
 set_source_files_properties(wolfMQTT/src/mqtt_client.c PROPERTIES COMPILE_FLAGS -Wno-conversion)
 set_source_files_properties(wolfMQTT/src/mqtt_client.c PROPERTIES COMPILE_FLAGS -Wno-sign-conversion)
-set_source_files_properties(wolfMQTT/wolfmqtt/mqtt_packet.h PROPERTIES COMPILE_FLAGS -Wno-conversion)
 set_source_files_properties(wolfMQTT/src/mqtt_packet.c PROPERTIES COMPILE_FLAGS -Wno-conversion)
 set_source_files_properties(wolfMQTT/src/mqtt_packet.c PROPERTIES COMPILE_FLAGS -Wno-sign-conversion)
 set_source_files_properties(wolfMQTT/src/mqtt_socket.c PROPERTIES COMPILE_FLAGS -Wno-conversion)
 set_source_files_properties(wolfMQTT/src/mqtt_socket.c PROPERTIES COMPILE_FLAGS -Wno-sign-conversion)
 set_source_files_properties(wolfMQTT/src/mqttnet.c PROPERTIES COMPILE_FLAGS -Wno-conversion)
 set_source_files_properties(wolfMQTT/src/mqttnet.c PROPERTIES COMPILE_FLAGS -Wno-sign-conversion)
-set_source_files_properties(wolfMQTT/examples/mqttnet.c PROPERTIES COMPILE_FLAGS -Wno-sign-conversion)
+set_source_files_properties(wolfMQTT/wolfmqtt/mqtt_client.c PROPERTIES COMPILE_FLAGS -Wno-conversion)
+set_source_files_properties(wolfMQTT/wolfmqtt/mqtt_packet.h PROPERTIES COMPILE_FLAGS -Wno-conversion)
 
 
 if(ALTAIR_FRONT_PANEL_CLICK)

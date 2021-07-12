@@ -19,7 +19,7 @@ char* uint8_to_binary(uint8_t bitmap, char* buffer, size_t buffer_length)
 	while (bit_number-- > 0)
 	{
 		buffer[bit_number] = bitmap & mask ? '1' : '0';
-		mask <<= 1;
+		mask = (uint16_t)(mask << 1);
 	}
 
 	buffer[8] = 0x00;
@@ -62,7 +62,7 @@ void DumpBuffer(uint8_t* buffer, uint16_t length)
 		{
 			Log_Debug("%s", ascBuff);
 			Log_Debug("\n");
-			lineOffset += 16;
+            lineOffset = (uint16_t)(lineOffset + 16);
 			if (x + 1 != length)
 			{
 				DisplayLineOffset(lineOffset);
