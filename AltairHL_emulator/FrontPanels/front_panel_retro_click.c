@@ -51,7 +51,6 @@ void turn_off_notifications_handler(EventLoopTimer *eventLoopTimer)
 
 void read_altair_panel_switches(void (*process_control_panel_commands)(void))
 {
-    const uint8_t buttonMap[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
     const ALTAIR_COMMAND commandMap[] = {STOP_CMD, SINGLE_STEP, EXAMINE, DEPOSIT, RUN_CMD, NOP, EXAMINE_NEXT, DEPOSIT_NEXT};
     const char notifyMap[] = {'s', 'S', 'E', 'D', 'r', 'n', 'e', 'd'};
     char controlChar = ' ';
