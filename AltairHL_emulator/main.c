@@ -555,7 +555,7 @@ static char altair_read_terminal(void)
 static void altair_write_terminal(char c)
 {
     if (c > 0x80)
-        c -= 0x80;
+        c = (char)(c - 0x80);
 
     if (haveTerminalOutputMessage) {
         altairOutputBufReadIndex++;
@@ -612,9 +612,9 @@ void process_control_panel_commands(void)
 
 static void update_panel_leds(uint8_t status, uint8_t data, uint16_t bus)
 {
-    status = reverse_lut[(status & 0xf0) >> 4] | reverse_lut[status & 0xf] << 4;
-    data = reverse_lut[(data & 0xf0) >> 4] | reverse_lut[data & 0xf] << 4;
-    bus = reverse_lut[(bus & 0xf000) >> 12] << 8 | reverse_lut[(bus & 0x0f00) >> 8] << 12 | reverse_lut[(bus & 0xf0) >> 4] | reverse_lut[bus & 0xf] << 4;
+    status = (uint8_t)(reverse_lut[(status & 0xf0) >> 4] | reverse_lut[status & 0xf] << 4);
+    data = (uint8_t)(reverse_lut[(data & 0xf0) >> 4] | reverse_lut[data & 0xf] << 4);
+    bus = (uint16_t)(reverse_lut[(bus & 0xf000) >> 12] << 8 | reverse_lut[(bus & 0x0f00) >> 8] << 12 | reverse_lut[(bus & 0xf0) >> 4] | reverse_lut[bus & 0xf] << 4);
 
     update_panel_status_leds(status, data, bus);
 }
@@ -647,7 +647,7 @@ static void panel_refresh_handler(EventLoopTimer *eventLoopTimer)
 
 static inline uint8_t sense(void)
 {
-    return bus_switches >> 8;
+    return (uint8_t)(bus_switches >> 8);
 }
 
 static bool loadRomImage(char *romImageName, uint16_t loadAddress)
