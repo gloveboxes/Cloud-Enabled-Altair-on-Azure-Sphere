@@ -10,7 +10,6 @@
 #include "dx_version.h"
 #include "../IntercoreContract/intercore_contract.h"
 
-
 #ifdef ALTAIR_FRONT_PANEL_CLICK
 #include "front_panel_click.h"
 #endif
@@ -43,9 +42,7 @@ static void panel_refresh_handler(EventLoopTimer *eventLoopTimer);
 static void process_control_panel_commands(void);
 static void WatchdogMonitorTimerHandler(EventLoopTimer *eventLoopTimer);
 
-
 const uint8_t reverse_lut[16] = {0x0, 0x8, 0x4, 0xc, 0x2, 0xa, 0x6, 0xe, 0x1, 0x9, 0x5, 0xd, 0x3, 0xb, 0x7, 0xf};
-
 
 INTERCORE_ENVIRONMENT_DATA_BLOCK_T intercore_send_block;
 INTERCORE_ENVIRONMENT_DATA_BLOCK_T intercore_recv_block;
